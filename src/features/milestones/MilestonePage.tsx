@@ -86,7 +86,7 @@ export function MilestonePage() {
         <div className="pointer-events-none absolute -bottom-24 -right-24 size-72 rounded-full bg-gradient-to-br from-pink-200 to-pink-400 dark:from-gray-700 dark:to-gray-600 blur-3xl opacity-30" />
         <div className="relative max-w-6xl mx-auto px-4 py-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-brand-700 to-pink-600 dark:from-brand-300 dark:to-pink-300 bg-clip-text text-transparent">Everly’s Milestones</h1>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-brand-700 to-pink-600 dark:from-brand-300 dark:to-pink-300 bg-clip-text text-transparent">Everly's Milestone Tracker</h1>
             <p className="mt-2 text-sm text-gray-700 dark:text-gray-200">{baby.name} was born on {birthText}.</p>
             <p className="text-sm text-gray-700 dark:text-gray-200">{baby.name} has been alive for {liveCounter}.</p>
           </div>
