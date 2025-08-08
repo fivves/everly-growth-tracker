@@ -65,11 +65,11 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, s
           </div>
           <span className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{windowText}</span>
         </div>
-        <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-2">
           <div className="flex items-center min-w-0">
             <span className={clsx('text-xs font-medium px-2 py-1 rounded-full', colors[item.level])}>{pill}</span>
             {statusAside && (
-              <span className="ml-2 text-xs italic text-gray-600 dark:text-gray-300 truncate">{statusAside}</span>
+              <div className="ml-2 flex items-center gap-2 min-w-0">{statusAside}</div>
             )}
           </div>
           <div className="flex items-center">

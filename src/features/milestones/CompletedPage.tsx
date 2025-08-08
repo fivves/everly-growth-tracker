@@ -33,6 +33,7 @@ export function CompletedPage() {
                   const last = m.levelHistory.filter(h => h.level === 'mastered').slice(-1)[0]
                   if (!last) return null
                   const dt = new Date(last.timestampIso)
+                  // Format date
                   const mm = dt.getMonth() + 1
                   const dd = dt.getDate()
                   const yy = String(dt.getFullYear()).slice(-2)
@@ -41,7 +42,24 @@ export function CompletedPage() {
                   const ampm = hours >= 12 ? 'PM' : 'AM'
                   hours = hours % 12
                   if (hours === 0) hours = 12
-                  return `${mm}/${dd}/${yy}, ${hours}:${minutes}${ampm}`
+                  const dateStr = `${mm}/${dd}/${yy}, ${hours}:${minutes}${ampm}`
+
+                  // Compute age in months at completion
+                  const birth = new Date(useMilestoneStore.getState().baby.birthDateIso)
+                  const ageMonths = Math.max(0, Math.floor((dt.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24 * 30.44)))
+                  // Determine timing relative to recommended window
+                  let timingClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' // on-time default
+                  if (ageMonths < m.ageStartMonths) timingClass = 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' // early (gold)
+                  if (ageMonths > m.ageEndMonths) timingClass = 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' // late
+
+                  return (
+                    <>
+                      <span className={`inline-flex items-center text-xs font-medium px-2 py-1 rounded-full ${timingClass}`} title={`Completed at ~${ageMonths} months (window ${m.ageStartMonths}-${m.ageEndMonths} mo)`}>
+                        {ageMonths} mo
+                      </span>
+                      <span className="text-xs italic text-gray-600 dark:text-gray-300 truncate">{dateStr}</span>
+                    </>
+                  )
                 })()}
                 onAdvance={() => {
                   setLevel(m.id, 'mastered')
