@@ -36,6 +36,8 @@ export function AdminPage() {
               <div className="space-x-2">
                 <button
                   className="px-2 py-1 text-sm rounded border"
+                  disabled={u.username === 'eddie' && currentUser !== 'eddie'}
+                  title={u.username === 'eddie' && currentUser !== 'eddie' ? 'Only eddie can change this password' : ''}
                   onClick={() => setPwUser(u.username)}
                 >Select for password change</button>
                 <button

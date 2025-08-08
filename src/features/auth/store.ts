@@ -47,6 +47,10 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({ users: state.users.filter((u) => u.username !== username) }))
       },
       changePassword: async (username, newPassword) => {
+        const actor = get().currentUser
+        if (username === DEFAULT_ADMIN && actor !== DEFAULT_ADMIN) {
+          return
+        }
         set((state) => ({
           users: state.users.map((u) => (u.username === username ? { ...u, password: newPassword } : u)),
         }))
