@@ -59,6 +59,7 @@ export const useChoresStore = create<ChoresState>()((set, get) => ({
     }),
   addChore: (input) =>
     set((state) => {
+      if (!useAuthStore.getState().canEdit()) return state
       const clean = input.title.trim()
       if (!clean) return state
       const next: ChoreItem = {

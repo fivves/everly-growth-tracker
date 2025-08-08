@@ -3,11 +3,13 @@ import { motion } from 'framer-motion'
 import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity, Sailboat } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import type { ChoreCategory } from './store'
+import { useAuthStore } from '../auth/store'
 import { useChoresStore } from './store'
 
 export function ChoresPage() {
   const { choresToday, toggleChore, addChore, deleteChore } = useChoresStore()
   const list = choresToday()
+  const currentUser = useAuthStore((s) => s.currentUser)
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<ChoreCategory>('bio')
   const [minutes, setMinutes] = useState<number | ''>('')
@@ -33,6 +35,7 @@ export function ChoresPage() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {currentUser && (
         <form onSubmit={submit} className="flex flex-wrap gap-2 items-center">
           <select value={category} onChange={(e) => setCategory(e.target.value as ChoreCategory)} className="rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900">
             <option value="food">Food</option>
@@ -46,6 +49,7 @@ export function ChoresPage() {
           <input value={captain} onChange={(e) => setCaptain(e.target.value)} placeholder="Captain" className="w-40 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
           <button type="submit" className="rounded-lg bg-brand-600 text-white px-4 py-2 shadow-lg shadow-brand-600/30 hover:bg-brand-700">Add</button>
         </form>
+        )}
 
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {list.map((c) => (
