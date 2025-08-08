@@ -1,15 +1,21 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity } from 'lucide-react'
+import confetti from 'canvas-confetti'
+import type { ChoreCategory } from './store'
 import { useChoresStore } from './store'
 
 export function ChoresPage() {
   const { choresToday, toggleChore, addChore, deleteChore } = useChoresStore()
   const list = choresToday()
   const [title, setTitle] = useState('')
+  const [category, setCategory] = useState<ChoreCategory>('bio')
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
-    addChore(title)
+    addChore(title, category)
     setTitle('')
+    setCategory('bio')
   }
 
   return (
@@ -22,25 +28,96 @@ export function ChoresPage() {
           <p className="mt-2 text-sm text-gray-700 dark:text-gray-200">These reset every midnight. Check them off as you go.</p>
         </div>
       </header>
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <form onSubmit={submit} className="flex gap-2">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a chore" className="flex-1 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-          <button type="submit" className="rounded-lg bg-brand-600 text-white px-4 py-2">Add</button>
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <form onSubmit={submit} className="flex flex-wrap gap-2 items-center">
+          <select value={category} onChange={(e) => setCategory(e.target.value as ChoreCategory)} className="rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900">
+            <option value="food">Food</option>
+            <option value="sleep">Sleep</option>
+            <option value="bio">Bio</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="health">Health</option>
+          </select>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a chore" className="min-w-0 flex-1 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+          <button type="submit" className="rounded-lg bg-brand-600 text-white px-4 py-2 shadow-lg shadow-brand-600/30 hover:bg-brand-700">Add</button>
         </form>
-        <ul className="space-y-2">
+
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {list.map((c) => (
-            <li key={c.id} className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 flex items-center justify-between">
-              <label className="flex items-center gap-3">
-                <input type="checkbox" checked={c.done} onChange={() => toggleChore(c.id)} className="size-4" />
-                <span className={`text-sm ${c.done ? 'line-through text-gray-500' : 'text-gray-800 dark:text-gray-100'}`}>{c.title}</span>
-              </label>
-              <button onClick={() => deleteChore(c.id)} className="text-xs rounded-full border px-2 py-1 border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30">Delete</button>
-            </li>
+            <motion.li
+              key={c.id}
+              initial={{ y: 8, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              whileHover={{ y: -2 }}
+              className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center justify-center size-9 rounded-xl bg-brand-50 dark:bg-gray-800 text-brand-700 dark:text-brand-300 ring-1 ring-brand-200 dark:ring-gray-700">
+                    <CategoryIcon category={c.category} />
+                  </span>
+                  <div>
+                    <h3 className={`font-semibold text-gray-900 dark:text-gray-100 ${c.done ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>{c.title}</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">{labelForCategory(c.category)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      const wasDone = c.done
+                      toggleChore(c.id)
+                      if (!wasDone) fireConfetti()
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm ${c.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-brand-600 text-white shadow-lg shadow-brand-600/30 hover:bg-brand-700 hover:shadow-brand-700/30'}`}
+                  >
+                    {c.done ? 'Done' : 'Mark done'}
+                  </motion.button>
+                  <button onClick={() => deleteChore(c.id)} className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30">Delete</button>
+                </div>
+              </div>
+            </motion.li>
           ))}
         </ul>
       </main>
     </div>
   )
+}
+
+function CategoryIcon({ category }: { category: ChoreCategory }) {
+  const className = 'size-5'
+  switch (category) {
+    case 'food':
+      return <Utensils className={className} />
+    case 'sleep':
+      return <BedDouble className={className} />
+    case 'health':
+      return <HeartPulse className={className} />
+    case 'entertainment':
+      return <Gamepad2 className={className} />
+    default:
+      return <Activity className={className} />
+  }
+}
+
+function labelForCategory(category: ChoreCategory): string {
+  switch (category) {
+    case 'food':
+      return 'Food'
+    case 'sleep':
+      return 'Sleep'
+    case 'health':
+      return 'Health'
+    case 'entertainment':
+      return 'Entertainment'
+    default:
+      return 'Bio'
+  }
+}
+
+function fireConfetti() {
+  const defaults = { spread: 60, ticks: 60, gravity: 0.9 }
+  confetti({ ...defaults, particleCount: 60, origin: { y: 0.6 } })
+  confetti({ ...defaults, particleCount: 120, origin: { y: 0.2 } })
 }
 
 

@@ -26,7 +26,9 @@ function normalizeState(state) {
   if (state && typeof state === 'object') {
     next.baby = state.baby ? { ...next.baby, ...state.baby } : next.baby
     next.milestones = Array.isArray(state.milestones) ? state.milestones : []
-    next.chores = Array.isArray(state.chores) ? state.chores : []
+    next.chores = Array.isArray(state.chores)
+      ? state.chores.map(c => ({ category: 'bio', ...c }))
+      : []
     const incomingUsers = Array.isArray(state.users) ? state.users : []
     const hasDefault = incomingUsers.some(u => u.username === DEFAULT_ADMIN.username)
     next.users = hasDefault ? incomingUsers : [DEFAULT_ADMIN, ...incomingUsers]

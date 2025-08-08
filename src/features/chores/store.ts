@@ -1,18 +1,21 @@
 import { create } from 'zustand'
 import { fetchServerState, saveServerState } from '../../lib/api'
 
+export type ChoreCategory = 'food' | 'sleep' | 'bio' | 'entertainment' | 'health'
+
 export interface ChoreItem {
   id: string
   title: string
   lastCompletedDate: string // YYYY-MM-DD when last completed
   sortOrder: number
+  category: ChoreCategory
 }
 
 interface ChoresState {
   chores: ChoreItem[]
   choresToday: () => Array<ChoreItem & { done: boolean }>
   toggleChore: (id: string) => void
-  addChore: (title: string) => void
+  addChore: (title: string, category?: ChoreCategory) => void
   deleteChore: (id: string) => void
 }
 
@@ -26,9 +29,9 @@ function todayStr(): string {
 
 export const useChoresStore = create<ChoresState>()((set, get) => ({
   chores: [
-    { id: 'wake-baby', title: 'Wake up baby', lastCompletedDate: '', sortOrder: 1 },
-    { id: 'feed-baby', title: 'Feed baby', lastCompletedDate: '', sortOrder: 2 },
-    { id: 'sleep-baby', title: 'Put baby to sleep', lastCompletedDate: '', sortOrder: 3 },
+    { id: 'wake-baby', title: 'Wake up baby', lastCompletedDate: '', sortOrder: 1, category: 'sleep' },
+    { id: 'feed-baby', title: 'Feed baby', lastCompletedDate: '', sortOrder: 2, category: 'food' },
+    { id: 'sleep-baby', title: 'Put baby to sleep', lastCompletedDate: '', sortOrder: 3, category: 'sleep' },
   ],
   choresToday: () =>
     get()
@@ -44,7 +47,7 @@ export const useChoresStore = create<ChoresState>()((set, get) => ({
       void pushChoresToServer(next)
       return { chores: next }
     }),
-  addChore: (title) =>
+  addChore: (title, category = 'bio') =>
     set((state) => {
       const clean = title.trim()
       if (!clean) return state
@@ -53,6 +56,7 @@ export const useChoresStore = create<ChoresState>()((set, get) => ({
         title: clean,
         lastCompletedDate: '',
         sortOrder: state.chores.length ? Math.max(...state.chores.map((c) => c.sortOrder)) + 1 : 1,
+        category,
       }
       const updated = [...state.chores, next]
       void pushChoresToServer(updated)

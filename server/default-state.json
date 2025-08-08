@@ -7,9 +7,9 @@
   },
   "milestones": [],
   "chores": [
-    { "id": "wake-baby", "title": "Wake up baby", "lastCompletedDate": "", "sortOrder": 1 },
-    { "id": "feed-baby", "title": "Feed baby", "lastCompletedDate": "", "sortOrder": 2 },
-    { "id": "sleep-baby", "title": "Put baby to sleep", "lastCompletedDate": "", "sortOrder": 3 }
+    { "id": "wake-baby", "title": "Wake up baby", "lastCompletedDate": "", "sortOrder": 1, "category": "sleep" },
+    { "id": "feed-baby", "title": "Feed baby", "lastCompletedDate": "", "sortOrder": 2, "category": "food" },
+    { "id": "sleep-baby", "title": "Put baby to sleep", "lastCompletedDate": "", "sortOrder": 3, "category": "sleep" }
   ],
   "users": [
     { "username": "eddie", "password": "eddie" }
