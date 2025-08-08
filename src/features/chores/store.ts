@@ -22,6 +22,7 @@ interface ChoresState {
   choresToday: () => Array<ChoreItem & { done: boolean }>
   toggleChore: (id: string) => void
   addChore: (input: { title: string; description?: string; category?: ChoreCategory; estimatedMinutes?: number; captainUsername?: string }) => void
+  updateChore: (id: string, patch: Partial<Pick<ChoreItem, 'title' | 'description' | 'category' | 'estimatedMinutes' | 'captainUsername' | 'sortOrder'>>) => void
   deleteChore: (id: string) => void
 }
 
@@ -82,6 +83,13 @@ export const useChoresStore = create<ChoresState>()((set, get) => ({
     set((state) => {
       if (!useAuthStore.getState().canEdit()) return state
       const updated = state.chores.filter((c) => c.id !== id)
+      void pushChoresToServer(updated)
+      return { chores: updated }
+    }),
+  updateChore: (id, patch) =>
+    set((state) => {
+      if (!useAuthStore.getState().canEdit()) return state
+      const updated = state.chores.map((c) => (c.id === id ? { ...c, ...patch } : c))
       void pushChoresToServer(updated)
       return { chores: updated }
     }),

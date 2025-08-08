@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity, Sailboat, PlusCircle } from 'lucide-react'
+import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity, Sailboat, PlusCircle, PencilLine, Trash2 } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import type { ChoreCategory } from './store'
 import { useAuthStore } from '../auth/store'
 import { useChoresStore } from './store'
 
 export function ChoresPage() {
-  const { choresToday, toggleChore, addChore, deleteChore } = useChoresStore()
+  const { choresToday, toggleChore, addChore, deleteChore, updateChore } = useChoresStore()
   const list = choresToday()
   const currentUser = useAuthStore((s) => s.currentUser)
   const users = useAuthStore((s) => s.users)
@@ -20,6 +20,7 @@ export function ChoresPage() {
     if (typeof window === 'undefined') return false
     return window.matchMedia('(min-width: 768px)').matches
   })
+  const [editing, setEditing] = useState<string | null>(null)
 
   useEffect(() => {
     if (!captain) {
@@ -156,12 +157,18 @@ export function ChoresPage() {
                   >
                     {c.done ? 'Done' : 'Mark done'}
                   </motion.button>
-                  <button onClick={() => deleteChore(c.id)} disabled={!currentUser} className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${currentUser ? 'border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30' : 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'}`}>Delete</button>
+                  <button onClick={() => setEditing(c.id)} disabled={!currentUser} title="Edit chore" className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${currentUser ? 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800' : 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'}`}>
+                    <PencilLine className="size-4" />
+                  </button>
+                  <button onClick={() => deleteChore(c.id)} disabled={!currentUser} title="Delete chore" className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${currentUser ? 'border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30' : 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'}`}>
+                    <Trash2 className="size-4" />
+                  </button>
                 </div>
               </div>
             </motion.li>
           ))}
         </ul>
+        <EditModal editingId={editing} onClose={() => setEditing(null)} onSave={(id, patch) => updateChore(id, patch)} />
       </main>
     </div>
   )
@@ -206,6 +213,80 @@ function fireConfetti() {
 
 function SailorHatIcon() {
   return <Sailboat className="size-4" />
+}
+
+function EditModal({ editingId, onClose, onSave }: { editingId: string | null; onClose: () => void; onSave: (id: string, patch: Partial<{ title: string; description: string; category: ChoreCategory; estimatedMinutes: number; captainUsername: string }>) => void }) {
+  const { choresToday } = useChoresStore()
+  const currentUser = useAuthStore((s) => s.currentUser)
+  const users = useAuthStore((s) => s.users)
+  const items = choresToday()
+  const target = items.find((x) => x.id === editingId)
+  const [title, setTitle] = useState(target?.title ?? '')
+  const [description, setDescription] = useState(target?.description ?? '')
+  const [category, setCategory] = useState<ChoreCategory>(target?.category ?? 'bio')
+  const [minutes, setMinutes] = useState<number | ''>(typeof target?.estimatedMinutes === 'number' ? target!.estimatedMinutes : '')
+  const [captain, setCaptain] = useState(target?.captainUsername ?? (users[0]?.username ?? ''))
+
+  if (!editingId) return null
+
+  function save() {
+    if (!currentUser || !target) return
+    onSave(target.id, {
+      title: title.trim() || target.title,
+      description: description.trim() || undefined,
+      category,
+      estimatedMinutes: minutes === '' ? undefined : Number(minutes),
+      captainUsername: captain || undefined,
+    })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-40">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 grid place-items-center p-4">
+        <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 shadow-lg">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Edit chore</h3>
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+            <label className="block md:col-span-3">
+              <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Title</span>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
+            </label>
+            <label className="block md:col-span-3">
+              <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Short description</span>
+              <input value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
+            </label>
+            <label className="block md:col-span-2">
+              <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Category</span>
+              <select value={category} onChange={(e) => setCategory(e.target.value as ChoreCategory)} className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 px-3 py-2">
+                <option value="food">Food</option>
+                <option value="sleep">Sleep</option>
+                <option value="bio">Bio</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="health">Health</option>
+              </select>
+            </label>
+            <label className="block md:col-span-2">
+              <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Estimated minutes</span>
+              <input value={minutes} onChange={(e) => setMinutes(e.target.value ? Number(e.target.value) : '')} type="number" min={0} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
+            </label>
+            <label className="block md:col-span-2">
+              <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Chore captain</span>
+              <select value={captain} onChange={(e) => setCaptain(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 px-3 py-2">
+                {users.map((u) => (
+                  <option key={u.username} value={u.username}>{u.username}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="mt-4 flex items-center justify-end gap-2">
+            <button onClick={onClose} className="rounded-lg border px-4 py-2 border-gray-300 dark:border-gray-700">Cancel</button>
+            <button onClick={save} className="rounded-lg bg-brand-600 text-white px-4 py-2">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 
