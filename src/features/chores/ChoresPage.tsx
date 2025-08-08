@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity, Sailboat } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity, Sailboat, PlusCircle } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import type { ChoreCategory } from './store'
 import { useAuthStore } from '../auth/store'
@@ -16,6 +16,10 @@ export function ChoresPage() {
   const [minutes, setMinutes] = useState<number | ''>('')
   const [captain, setCaptain] = useState(currentUser ?? '')
   const [description, setDescription] = useState('')
+  const [showForm, setShowForm] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia('(min-width: 768px)').matches
+  })
 
   useEffect(() => {
     if (!captain) {
@@ -45,41 +49,62 @@ export function ChoresPage() {
       </header>
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {currentUser && (
-        <form onSubmit={submit} className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-          <label className="block md:col-span-2">
-            <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Title</span>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a chore" className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
-          </label>
-          <label className="block md:col-span-2">
-            <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Short description</span>
-            <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional details" className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
-          </label>
-          <label className="block">
-            <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Category</span>
-            <select value={category} onChange={(e) => setCategory(e.target.value as ChoreCategory)} className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 px-3 py-2">
-              <option value="food">Food</option>
-              <option value="sleep">Sleep</option>
-              <option value="bio">Bio</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="health">Health</option>
-            </select>
-          </label>
-          <label className="block">
-            <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Estimated minutes</span>
-            <input value={minutes} onChange={(e) => setMinutes(e.target.value ? Number(e.target.value) : '')} type="number" min={0} placeholder="Min" className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
-          </label>
-          <label className="block md:col-span-2">
-            <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Chore captain</span>
-            <select value={captain} onChange={(e) => setCaptain(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 px-3 py-2">
-              {users.map((u) => (
-                <option key={u.username} value={u.username}>{u.username}</option>
-              ))}
-            </select>
-          </label>
-          <div className="md:col-span-6 text-right">
-            <button type="submit" className="inline-flex items-center gap-2 rounded-full bg-brand-600 text-white px-4 py-2 shadow-lg shadow-brand-600/30 hover:bg-brand-700">Add chore</button>
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600 dark:text-gray-300">Add a new daily chore</div>
+            <button
+              onClick={() => setShowForm((s) => !s)}
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              <PlusCircle className="size-4" /> {showForm ? 'Hide form' : 'Add new chore'}
+            </button>
           </div>
-        </form>
+        )}
+        {currentUser && (
+          <AnimatePresence initial={false}>
+            {showForm && (
+              <motion.form
+                onSubmit={submit}
+                className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+              >
+                <label className="block md:col-span-2">
+                  <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Title</span>
+                  <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a chore" className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
+                </label>
+                <label className="block md:col-span-2">
+                  <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Short description</span>
+                  <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional details" className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
+                </label>
+                <label className="block">
+                  <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Category</span>
+                  <select value={category} onChange={(e) => setCategory(e.target.value as ChoreCategory)} className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 px-3 py-2">
+                    <option value="food">Food</option>
+                    <option value="sleep">Sleep</option>
+                    <option value="bio">Bio</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="health">Health</option>
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Estimated minutes</span>
+                  <input value={minutes} onChange={(e) => setMinutes(e.target.value ? Number(e.target.value) : '')} type="number" min={0} placeholder="Min" className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
+                </label>
+                <label className="block md:col-span-2">
+                  <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Chore captain</span>
+                  <select value={captain} onChange={(e) => setCaptain(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 px-3 py-2">
+                    {users.map((u) => (
+                      <option key={u.username} value={u.username}>{u.username}</option>
+                    ))}
+                  </select>
+                </label>
+                <div className="md:col-span-6 text-right">
+                  <button type="submit" className="inline-flex items-center gap-2 rounded-full bg-brand-600 text-white px-4 py-2 shadow-lg shadow-brand-600/30 hover:bg-brand-700">Add chore</button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
         )}
 
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
