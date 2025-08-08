@@ -55,7 +55,7 @@ function App() {
           <div className="mx-auto max-w-6xl px-4 py-2 flex flex-wrap items-center gap-2 sm:gap-4">
             <NavLink to="/" end className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Milestones</NavLink>
             <NavLink to="/completed" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Completed</NavLink>
-            <NavLink to="/archive" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Archive</NavLink>
+            {/* Archive removed; logs now available from Completed cards */}
             <AdminLink />
             <div className="w-full sm:w-auto ml-0 sm:ml-auto mt-2 sm:mt-0 flex items-center gap-2 justify-between sm:justify-end">
               <AuthControls />
@@ -73,7 +73,7 @@ function App() {
         <Routes>
           <Route path="/" element={<MilestonePage />} />
           <Route path="/completed" element={<CompletedPage />} />
-          <Route path="/archive" element={<ArchivePage />} />
+          {/* Archive removed */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<RequireAuth><AdminPage /></RequireAuth>} />
         </Routes>

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { clsx } from 'clsx'
-import { PartyPopper, Activity, MessageCircle, Users, Brain, Star } from 'lucide-react'
+import { PartyPopper, Activity, MessageCircle, Users, Brain, Star, PencilLine } from 'lucide-react'
 import type { MilestoneItem, MilestoneLevel } from '../types'
 import { useAuthStore } from '../../auth/store'
 
@@ -33,7 +33,7 @@ function CategoryIcon({ category }: { category: MilestoneItem['category'] }) {
   }
 }
 
-export function MilestoneCard({ item, onAdvance, onUndo }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void }) {
+export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void }) {
   const canEdit = useAuthStore((s) => s.canEdit())
   const windowText = `${item.ageStartMonths}-${item.ageEndMonths} mo`
   const pill = levelLabel(item.level)
@@ -88,6 +88,19 @@ export function MilestoneCard({ item, onAdvance, onUndo }: { item: MilestoneItem
             >
               Undo
             </button>
+            {onEditLogs && (
+              <button
+                onClick={onEditLogs}
+                disabled={!canEdit}
+                className={clsx(
+                  'ml-2 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm',
+                  canEdit ? 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800' : 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                )}
+                title="Edit logs"
+              >
+                <PencilLine className="size-4"/> Edit logs
+              </button>
+            )}
           </div>
         </div>
     </motion.div>
