@@ -73,22 +73,7 @@ export function HomePage() {
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Milestones at a glance</h2>
             <NavLink to="/milestones" className={({isActive}) => `inline-flex items-center rounded-full px-3 py-1.5 text-sm ${isActive ? 'bg-brand-600 text-white' : 'border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>View more</NavLink>
           </div>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {upcomingList.map((m) => (
-              <div key={m.id} className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{m.title}</h3>
-                    {m.description && <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{m.description}</p>}
-                  </div>
-                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{m.ageStartMonths}-{m.ageEndMonths} mo</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          {completedList.length > 0 && (
-            <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">Recently completed: {completedList.map((m) => m.title).join(', ')}</p>
-          )}
+          <MilestonesGlance />
         </section>
       </main>
     </div>
@@ -160,6 +145,70 @@ function ChoresCompactWidget() {
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+function MilestonesGlance() {
+  const { milestones } = useMilestoneStore()
+  const inProgress = milestones
+    .filter((m) => m.level === 'didIt' || m.level === 'learning')
+    .slice(0, 2)
+  const completedRecent = milestones
+    .filter((m) => m.level === 'mastered')
+    .map((m) => {
+      const last = m.levelHistory.filter((h) => h.level === 'mastered').slice(-1)[0]
+      return { m, ts: last ? new Date(last.timestampIso).getTime() : 0 }
+    })
+    .sort((a, b) => b.ts - a.ts)
+    .slice(0, 2)
+    .map((x) => x.m)
+
+  const left = padWithPlaceholders(inProgress, 2)
+  const right = padWithPlaceholders(completedRecent, 2)
+
+  return (
+    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">In progress</h3>
+        {left.map((m, idx) => (
+          <MilestoneCardGlance key={m ? m.id : `placeholder-${idx}`} item={m} placeholderText="No milestone in progress. Add more milestones to fill this space." />
+        ))}
+      </div>
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Recently completed</h3>
+        {right.map((m, idx) => (
+          <MilestoneCardGlance key={m ? m.id : `placeholder-r-${idx}`} item={m} placeholderText="No recent completions yet." />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function padWithPlaceholders<T>(arr: T[], size: number): Array<T | null> {
+  const out: Array<T | null> = [...arr]
+  while (out.length < size) out.push(null)
+  return out
+}
+
+function MilestoneCardGlance({ item, placeholderText }: { item: import('../milestones/types').MilestoneItem | null; placeholderText: string }) {
+  if (!item) {
+    return (
+      <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50 p-4 text-sm text-gray-600 dark:text-gray-300">
+        {placeholderText}
+      </div>
+    )
+  }
+  const windowText = `${item.ageStartMonths}-${item.ageEndMonths} mo`
+  return (
+    <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100">{item.title}</h4>
+          {item.description && <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">{item.description}</p>}
+        </div>
+        <span className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{windowText}</span>
+      </div>
     </div>
   )
 }
