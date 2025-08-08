@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity, Sailboat } from 'lucide-react'
 import confetti from 'canvas-confetti'
@@ -10,11 +10,18 @@ export function ChoresPage() {
   const { choresToday, toggleChore, addChore, deleteChore } = useChoresStore()
   const list = choresToday()
   const currentUser = useAuthStore((s) => s.currentUser)
+  const users = useAuthStore((s) => s.users)
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<ChoreCategory>('bio')
   const [minutes, setMinutes] = useState<number | ''>('')
-  const [captain, setCaptain] = useState('')
+  const [captain, setCaptain] = useState(currentUser ?? '')
   const [description, setDescription] = useState('')
+
+  useEffect(() => {
+    if (!captain) {
+      setCaptain(currentUser ?? (users[0]?.username ?? ''))
+    }
+  }, [currentUser, users])
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -49,7 +56,11 @@ export function ChoresPage() {
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a chore" className="min-w-0 flex-1 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
           <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description" className="min-w-0 flex-1 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
           <input value={minutes} onChange={(e) => setMinutes(e.target.value ? Number(e.target.value) : '')} type="number" min={0} placeholder="Min" className="w-24 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-          <input value={captain} onChange={(e) => setCaptain(e.target.value)} placeholder="Captain" className="w-40 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+          <select value={captain} onChange={(e) => setCaptain(e.target.value)} className="w-40 rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900">
+            {users.map((u) => (
+              <option key={u.username} value={u.username}>{u.username}</option>
+            ))}
+          </select>
           <button type="submit" className="rounded-lg bg-brand-600 text-white px-4 py-2 shadow-lg shadow-brand-600/30 hover:bg-brand-700">Add</button>
         </form>
         )}
