@@ -22,7 +22,7 @@ interface ChoresState {
   choresToday: () => Array<ChoreItem & { done: boolean }>
   toggleChore: (id: string) => void
   addChore: (input: { title: string; description?: string; category?: ChoreCategory; estimatedMinutes?: number; captainUsername?: string }) => void
-  updateChore: (id: string, patch: Partial<Pick<ChoreItem, 'title' | 'description' | 'category' | 'estimatedMinutes' | 'captainUsername' | 'sortOrder'>>) => void
+  updateChore: (id: string, patch: Partial<Pick<ChoreItem, 'title' | 'description' | 'category' | 'estimatedMinutes' | 'captainUsername' | 'sortOrder' | 'lastCompletedDate' | 'lastCompletedAtIso' | 'lastCompletedBy'>>) => void
   deleteChore: (id: string) => void
 }
 

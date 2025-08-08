@@ -215,7 +215,7 @@ function SailorHatIcon() {
   return <Sailboat className="size-4" />
 }
 
-function EditModal({ editingId, onClose, onSave }: { editingId: string | null; onClose: () => void; onSave: (id: string, patch: Partial<{ title: string; description: string; category: ChoreCategory; estimatedMinutes: number; captainUsername: string }>) => void }) {
+function EditModal({ editingId, onClose, onSave }: { editingId: string | null; onClose: () => void; onSave: (id: string, patch: Partial<{ title: string; description: string; category: ChoreCategory; estimatedMinutes: number; captainUsername: string; lastCompletedDate: string; lastCompletedAtIso: string; lastCompletedBy: string }>) => void }) {
   const { choresToday } = useChoresStore()
   const currentUser = useAuthStore((s) => s.currentUser)
   const users = useAuthStore((s) => s.users)
@@ -226,18 +226,27 @@ function EditModal({ editingId, onClose, onSave }: { editingId: string | null; o
   const [category, setCategory] = useState<ChoreCategory>(target?.category ?? 'bio')
   const [minutes, setMinutes] = useState<number | ''>(typeof target?.estimatedMinutes === 'number' ? target!.estimatedMinutes : '')
   const [captain, setCaptain] = useState(target?.captainUsername ?? (users[0]?.username ?? ''))
+  const [completedDate, setCompletedDate] = useState<string>(target?.lastCompletedAtIso ? new Date(target.lastCompletedAtIso).toISOString().slice(0,10) : '')
+  const [completedTime, setCompletedTime] = useState<string>(target?.lastCompletedAtIso ? new Date(target.lastCompletedAtIso).toTimeString().slice(0,5) : '')
 
   if (!editingId) return null
 
   function save() {
     if (!currentUser || !target) return
-    onSave(target.id, {
+    const patch: any = {
       title: title.trim() || target.title,
       description: description.trim() || undefined,
       category,
       estimatedMinutes: minutes === '' ? undefined : Number(minutes),
       captainUsername: captain || undefined,
-    })
+    }
+    if (completedDate && completedTime) {
+      const iso = new Date(`${completedDate}T${completedTime}:00`).toISOString()
+      patch.lastCompletedDate = completedDate
+      patch.lastCompletedAtIso = iso
+      patch.lastCompletedBy = target.lastCompletedBy ?? currentUser ?? undefined
+    }
+    onSave(target.id, patch)
     onClose()
   }
 
@@ -252,6 +261,16 @@ function EditModal({ editingId, onClose, onSave }: { editingId: string | null; o
               <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Title</span>
               <input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
             </label>
+            <div className="md:col-span-6 grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Completed date</span>
+                <input type="date" value={completedDate} onChange={(e) => setCompletedDate(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
+              </label>
+              <label className="block">
+                <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Completed time</span>
+                <input type="time" value={completedTime} onChange={(e) => setCompletedTime(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
+              </label>
+            </div>
             <label className="block md:col-span-3">
               <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Short description</span>
               <input value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2" />
