@@ -34,7 +34,7 @@ function CategoryIcon({ category }: { category: MilestoneItem['category'] }) {
   }
 }
 
-export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, showAdvance = true, statusAside }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void; onDelete?: () => void; showAdvance?: boolean; statusAside?: ReactNode }) {
+export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, showAdvance = true, statusAside, editLogsIconOnly = false }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void; onDelete?: () => void; showAdvance?: boolean; statusAside?: ReactNode; editLogsIconOnly?: boolean }) {
   const canEdit = useAuthStore((s) => s.canEdit())
   const windowText = `${item.ageStartMonths}-${item.ageEndMonths} mo`
   const pill = levelLabel(item.level)
@@ -107,7 +107,8 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, s
                 )}
                 title="Edit logs"
               >
-                <PencilLine className="size-4"/> Edit logs
+                <PencilLine className="size-4"/>
+                {!editLogsIconOnly && <span>Edit logs</span>}
               </button>
             )}
             {onDelete && item.isCustom && (

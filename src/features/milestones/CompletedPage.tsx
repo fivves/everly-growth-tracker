@@ -32,11 +32,16 @@ export function CompletedPage() {
                 statusAside={(() => {
                   const last = m.levelHistory.filter(h => h.level === 'mastered').slice(-1)[0]
                   if (!last) return null
-                  try {
-                    return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(last.timestampIso))
-                  } catch {
-                    return new Date(last.timestampIso).toLocaleString()
-                  }
+                  const dt = new Date(last.timestampIso)
+                  const mm = dt.getMonth() + 1
+                  const dd = dt.getDate()
+                  const yy = String(dt.getFullYear()).slice(-2)
+                  let hours = dt.getHours()
+                  const minutes = String(dt.getMinutes()).padStart(2, '0')
+                  const ampm = hours >= 12 ? 'PM' : 'AM'
+                  hours = hours % 12
+                  if (hours === 0) hours = 12
+                  return `${mm}/${dd}/${yy}, ${hours}:${minutes}${ampm}`
                 })()}
                 onAdvance={() => {
                   setLevel(m.id, 'mastered')
@@ -47,6 +52,7 @@ export function CompletedPage() {
                   toast('Undone!', { type: 'info' })
                 }}
                 onEditLogs={() => setEditingId(m.id)}
+                editLogsIconOnly
                 onDelete={undefined}
               />
             ))}
