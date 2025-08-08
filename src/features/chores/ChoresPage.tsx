@@ -92,11 +92,12 @@ export function ChoresPage() {
                       toggleChore(c.id)
                       if (!wasDone) fireConfetti()
                     }}
-                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm ${c.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-brand-600 text-white shadow-lg shadow-brand-600/30 hover:bg-brand-700 hover:shadow-brand-700/30'}`}
+                    disabled={!currentUser}
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm ${!currentUser ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : c.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-brand-600 text-white shadow-lg shadow-brand-600/30 hover:bg-brand-700 hover:shadow-brand-700/30'}`}
                   >
                     {c.done ? 'Done' : 'Mark done'}
                   </motion.button>
-                  <button onClick={() => deleteChore(c.id)} className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30">Delete</button>
+                  <button onClick={() => deleteChore(c.id)} disabled={!currentUser} className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${currentUser ? 'border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30' : 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'}`}>Delete</button>
                 </div>
               </div>
             </motion.li>

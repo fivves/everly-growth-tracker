@@ -45,6 +45,7 @@ export const useChoresStore = create<ChoresState>()((set, get) => ({
       .map((c) => ({ ...c, done: c.lastCompletedDate === todayStr() })),
   toggleChore: (id) =>
     set((state) => {
+      if (!useAuthStore.getState().canEdit()) return state
       const today = todayStr()
       const currentUser = useAuthStore.getState().currentUser ?? undefined
       const nowIso = new Date().toISOString()
@@ -77,6 +78,7 @@ export const useChoresStore = create<ChoresState>()((set, get) => ({
     }),
   deleteChore: (id) =>
     set((state) => {
+      if (!useAuthStore.getState().canEdit()) return state
       const updated = state.chores.filter((c) => c.id !== id)
       void pushChoresToServer(updated)
       return { chores: updated }
