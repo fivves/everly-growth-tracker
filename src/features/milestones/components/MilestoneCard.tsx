@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { clsx } from 'clsx'
-import { PartyPopper, Activity, MessageCircle, Users, Brain, Star, PencilLine } from 'lucide-react'
+import { PartyPopper, Activity, MessageCircle, Users, Brain, Star, PencilLine, Trash2 } from 'lucide-react'
 import type { MilestoneItem, MilestoneLevel } from '../types'
 import { useAuthStore } from '../../auth/store'
 
@@ -33,7 +33,7 @@ function CategoryIcon({ category }: { category: MilestoneItem['category'] }) {
   }
 }
 
-export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, showAdvance = true }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void; showAdvance?: boolean }) {
+export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, showAdvance = true }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void; onDelete?: () => void; showAdvance?: boolean }) {
   const canEdit = useAuthStore((s) => s.canEdit())
   const windowText = `${item.ageStartMonths}-${item.ageEndMonths} mo`
   const pill = levelLabel(item.level)
@@ -102,6 +102,19 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, showAdvance
                 title="Edit logs"
               >
                 <PencilLine className="size-4"/> Edit logs
+              </button>
+            )}
+            {onDelete && item.isCustom && (
+              <button
+                onClick={onDelete}
+                disabled={!canEdit}
+                className={clsx(
+                  'ml-2 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm',
+                  canEdit ? 'border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30' : 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                )}
+                title="Delete custom milestone"
+              >
+                <Trash2 className="size-4"/> Delete
               </button>
             )}
           </div>

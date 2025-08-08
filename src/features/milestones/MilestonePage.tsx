@@ -10,7 +10,7 @@ import { MilestoneCard } from './components/MilestoneCard'
 import { useAuthStore } from '../auth/store'
 
 export function MilestonePage() {
-  const { baby, upcoming, setLevel, undoLevel } = useMilestoneStore()
+  const { baby, upcoming, setLevel, undoLevel, deleteMilestone } = useMilestoneStore()
   const { toast } = useToast()
   const canEdit = useAuthStore((s) => s.canEdit())
   const [showCreate, setShowCreate] = useState(false)
@@ -111,7 +111,13 @@ export function MilestonePage() {
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{label}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {list.map((m) => (
-                    <MilestoneCard key={m.id} item={m} onAdvance={() => handleAdvanceLevel(m)} onUndo={() => { undoLevel(m.id); toast('Undone!', { type: 'info' }) }} />
+                    <MilestoneCard
+                      key={m.id}
+                      item={m}
+                      onAdvance={() => handleAdvanceLevel(m)}
+                      onUndo={() => { undoLevel(m.id); toast('Undone!', { type: 'info' }) }}
+                      onDelete={m.isCustom ? () => { deleteMilestone(m.id); toast('Custom milestone deleted', { type: 'info' }) } : undefined}
+                    />
                   ))}
                 </div>
               </div>

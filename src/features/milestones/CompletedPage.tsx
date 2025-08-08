@@ -38,6 +38,7 @@ export function CompletedPage() {
                   toast('Undone!', { type: 'info' })
                 }}
                 onEditLogs={() => setEditingId(m.id)}
+                onDelete={undefined}
               />
             ))}
           </div>

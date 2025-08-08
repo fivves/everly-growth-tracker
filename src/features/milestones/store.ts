@@ -12,6 +12,7 @@ interface MilestoneState {
   setLevel: (id: string, level: Exclude<MilestoneLevel, 'none'>) => void
   undoLevel: (id: string) => void
   setLevelHistory: (id: string, history: { level: Exclude<MilestoneLevel, 'none'>; timestampIso: string }[]) => void
+  deleteMilestone: (id: string) => void
   archive: () => MilestoneItem[]
   upcoming: (limit?: number) => MilestoneItem[]
   completed: () => MilestoneItem[]
@@ -90,6 +91,15 @@ export const useMilestoneStore = create<MilestoneState>()((set, get) => ({
       const sorted = [...history].sort((a, b) => new Date(a.timestampIso).getTime() - new Date(b.timestampIso).getTime())
       const finalLevel: MilestoneLevel = sorted.length > 0 ? sorted[sorted.length - 1].level : 'none'
       const next = state.milestones.map((m) => (m.id === id ? { ...m, level: finalLevel, levelHistory: sorted } : m))
+      void pushStateToServer(next, state.baby)
+      return { milestones: next }
+    }),
+  deleteMilestone: (id) =>
+    set((state) => {
+      if (!useAuthStore.getState().canEdit()) return state
+      const target = state.milestones.find((m) => m.id === id)
+      if (!target || !target.isCustom) return state
+      const next = state.milestones.filter((m) => m.id !== id)
       void pushStateToServer(next, state.baby)
       return { milestones: next }
     }),
