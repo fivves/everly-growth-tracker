@@ -114,7 +114,7 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, s
                 )}
                 title="Delete custom milestone"
               >
-                <Trash2 className="size-4"/> Delete
+                <Trash2 className="size-4"/>
               </button>
             )}
           </div>
