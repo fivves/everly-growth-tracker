@@ -48,9 +48,17 @@ export const useAuthStore = create<AuthState>()(
       users: [],
       currentUser: null,
       login: async (username, password) => {
-        const { users } = get()
+        const { users, addUser } = get() as AuthState & { addUser: (u: string, p: string) => Promise<void> }
         const user = users.find((u) => u.username === username)
-        if (!user) return false
+        if (!user) {
+          // Bootstrap default admin on first login
+          if (username === DEFAULT_ADMIN && password === DEFAULT_ADMIN_PASSWORD) {
+            await addUser(DEFAULT_ADMIN, DEFAULT_ADMIN_PASSWORD)
+            set({ currentUser: DEFAULT_ADMIN })
+            return true
+          }
+          return false
+        }
         const computed = await hashPassword(password, user.salt)
         if (computed === user.passwordHash) {
           set({ currentUser: username })
@@ -84,15 +92,9 @@ export const useAuthStore = create<AuthState>()(
       name: 'everly-auth-v1',
       version: 1,
       migrate: async (persisted: any) => {
-        // Ensure default admin exists
+        // Preserve users; bootstrap handled on first login
         const data = (persisted ?? {}) as Partial<AuthState>
-        let users = Array.isArray((data as any).users) ? ((data as any).users as UserRecord[]) : []
-        if (!users.some((u) => u.username === DEFAULT_ADMIN)) {
-          const salt = generateSalt()
-          const passwordHash = await hashPassword(DEFAULT_ADMIN_PASSWORD, salt)
-          users = [...users, { username: DEFAULT_ADMIN, passwordHash, salt }]
-        }
-        return { ...data, users }
+        return { ...data }
       },
     }
   )
