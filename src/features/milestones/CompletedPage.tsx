@@ -29,6 +29,15 @@ export function CompletedPage() {
                 key={m.id}
                 item={m}
                 showAdvance={false}
+                statusAside={(() => {
+                  const last = m.levelHistory.filter(h => h.level === 'mastered').slice(-1)[0]
+                  if (!last) return null
+                  try {
+                    return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(last.timestampIso))
+                  } catch {
+                    return new Date(last.timestampIso).toLocaleString()
+                  }
+                })()}
                 onAdvance={() => {
                   setLevel(m.id, 'mastered')
                   toast('Already mastered!', { type: 'info' })

@@ -3,6 +3,7 @@ import { clsx } from 'clsx'
 import { PartyPopper, Activity, MessageCircle, Users, Brain, Star, PencilLine, Trash2 } from 'lucide-react'
 import type { MilestoneItem, MilestoneLevel } from '../types'
 import { useAuthStore } from '../../auth/store'
+import type { ReactNode } from 'react'
 
 function levelLabel(level: MilestoneLevel): string {
   switch (level) {
@@ -33,7 +34,7 @@ function CategoryIcon({ category }: { category: MilestoneItem['category'] }) {
   }
 }
 
-export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, showAdvance = true }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void; onDelete?: () => void; showAdvance?: boolean }) {
+export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, showAdvance = true, statusAside }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void; onDelete?: () => void; showAdvance?: boolean; statusAside?: ReactNode }) {
   const canEdit = useAuthStore((s) => s.canEdit())
   const windowText = `${item.ageStartMonths}-${item.ageEndMonths} mo`
   const pill = levelLabel(item.level)
@@ -65,7 +66,12 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, s
           <span className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{windowText}</span>
         </div>
         <div className="flex items-center justify-between pt-2">
-          <span className={clsx('text-xs font-medium px-2 py-1 rounded-full', colors[item.level])}>{pill}</span>
+          <div className="flex items-center min-w-0">
+            <span className={clsx('text-xs font-medium px-2 py-1 rounded-full', colors[item.level])}>{pill}</span>
+            {statusAside && (
+              <span className="ml-2 text-xs italic text-gray-600 dark:text-gray-300 truncate">{statusAside}</span>
+            )}
+          </div>
           <div className="flex items-center">
             {showAdvance && (
               <button
