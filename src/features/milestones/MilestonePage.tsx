@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import confetti from 'canvas-confetti'
-import { PlusCircle } from 'lucide-react'
+import { PlusCircle, Calendar, Clock, X, Trash2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMilestoneStore } from './store'
 import { useToast } from '../../components/toast/ToastProvider'
@@ -10,12 +10,14 @@ import { MilestoneCard } from './components/MilestoneCard'
 import { useAuthStore } from '../auth/store'
 
 export function MilestonePage() {
-  const { baby, upcoming, setLevel, undoLevel, deleteMilestone } = useMilestoneStore()
+  const { baby, upcoming, completed, setLevel, undoLevel, deleteMilestone, milestones, setLevelHistory } = useMilestoneStore()
   const { toast } = useToast()
   const canEdit = useAuthStore((s) => s.canEdit())
   const [showCreate, setShowCreate] = useState(false)
   const [now, setNow] = useState<Date>(() => new Date())
+  const [editingId, setEditingId] = useState<string | null>(null)
   const upcomingList = upcoming(100)
+  const completedList = completed()
   const sections = useMemo(() => {
     const buckets: Record<string, MilestoneItem[]> = {
       '0–12 months': [],
@@ -125,9 +127,67 @@ export function MilestonePage() {
           })}
         </section>
 
+        <section className="space-y-4 mt-10">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Completed</h2>
+          {completedList.length === 0 ? (
+            <p className="text-gray-600 dark:text-gray-300">No completed milestones yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {completedList.map((m) => (
+                <MilestoneCard
+                  key={m.id}
+                  item={m}
+                  showAdvance={false}
+                  statusAside={(() => {
+                    const last = m.levelHistory.filter(h => h.level === 'mastered').slice(-1)[0]
+                    if (!last) return null
+                    const dt = new Date(last.timestampIso)
+                    const mm = dt.getMonth() + 1
+                    const dd = dt.getDate()
+                    const yy = String(dt.getFullYear()).slice(-2)
+                    let hours = dt.getHours()
+                    const minutes = String(dt.getMinutes()).padStart(2, '0')
+                    const ampm = hours >= 12 ? 'PM' : 'AM'
+                    hours = hours % 12
+                    if (hours === 0) hours = 12
+                    const dateStr = `${mm}/${dd}/${yy}, ${hours}:${minutes}${ampm}`
+                    const birth = new Date(useMilestoneStore.getState().baby.birthDateIso)
+                    const ageMonths = Math.max(0, Math.floor((dt.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24 * 30.44)))
+                    let timingClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                    if (ageMonths < m.ageStartMonths) timingClass = 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                    if (ageMonths > m.ageEndMonths) timingClass = 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                    return (
+                      <>
+                        <span className={`inline-flex items-center text-xs font-medium px-2 py-1 rounded-full ${timingClass}`} title={`Completed at ~${ageMonths} months (window ${m.ageStartMonths}-${m.ageEndMonths} mo)`}>
+                          {ageMonths} mo
+                        </span>
+                        <span className="text-xs italic text-gray-600 dark:text-gray-300 truncate">{dateStr}</span>
+                      </>
+                    )
+                  })()}
+                  onAdvance={() => { setLevel(m.id, 'mastered'); toast('Already mastered!', { type: 'info' }) }}
+                  onUndo={() => { undoLevel(m.id); toast('Undone!', { type: 'info' }) }}
+                  onEditLogs={() => setEditingId(m.id)}
+                  editLogsIconOnly
+                  onDelete={undefined}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
       </main>
 
       <AnimatePresence>{showCreate && <CreateMilestoneModal onClose={() => setShowCreate(false)} />}</AnimatePresence>
+      {editingId && (
+        <EditLogsModal
+          milestoneId={editingId}
+          milestones={milestones}
+          onDelete={() => { const m = milestones.find(x => x.id === editingId); if (m && m.isCustom) { deleteMilestone(editingId); setEditingId(null) }}}
+          onClose={() => setEditingId(null)}
+          onSave={(history) => { setLevelHistory(editingId, history); setEditingId(null) }}
+        />
+      )}
     </div>
   )
 }
@@ -205,6 +265,82 @@ function CreateMilestoneModal({ onClose }: { onClose: () => void }) {
         </div>
       </motion.div>
     </motion.div>
+  )
+}
+
+function EditLogsModal({ milestoneId, milestones, onClose, onSave, onDelete }: { milestoneId: string; milestones: ReturnType<typeof useMilestoneStore>['milestones']; onClose: () => void; onSave: (history: { level: 'didIt'|'learning'|'mastered'; timestampIso: string }[]) => void; onDelete?: () => void }) {
+  const m = milestones.find((x) => x.id === milestoneId)!
+  const [rows, setRows] = useState<{ level: 'didIt'|'learning'|'mastered'; date: string; time: string }[]>(() =>
+    (m.levelHistory.length ? m.levelHistory : [{ level: 'didIt', timestampIso: new Date().toISOString() }]).map((h) => {
+      const dt = new Date(h.timestampIso)
+      const yyyy = dt.getFullYear()
+      const mm = String(dt.getMonth() + 1).padStart(2, '0')
+      const dd = String(dt.getDate()).padStart(2, '0')
+      const hh = String(dt.getHours()).padStart(2, '0')
+      const mi = String(dt.getMinutes()).padStart(2, '0')
+      return { level: h.level, date: `${yyyy}-${mm}-${dd}`, time: `${hh}:${mi}` }
+    })
+  )
+
+  const addRow = () => setRows((r) => [...r, { level: 'didIt', date: new Date().toISOString().slice(0,10), time: new Date().toTimeString().slice(0,5) }])
+  const removeRow = (idx: number) => setRows((r) => r.filter((_, i) => i !== idx))
+  const changeRow = (idx: number, patch: Partial<{ level: 'didIt'|'learning'|'mastered'; date: string; time: string }>) =>
+    setRows((r) => r.map((row, i) => (i === idx ? { ...row, ...patch } : row)))
+
+  const save = () => {
+    const history = rows.map((r) => ({ level: r.level, timestampIso: new Date(`${r.date}T${r.time}:00`).toISOString() }))
+    onSave(history)
+  }
+
+  return (
+    <div className="fixed inset-0 z-40">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 grid place-items-center p-4">
+        <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Edit logs</h3>
+            <button onClick={onClose} className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800"><X className="size-4"/></button>
+          </div>
+          <div className="mt-3 space-y-2">
+            {rows.map((row, i) => (
+              <div key={i} className="grid grid-cols-12 gap-2 items-center">
+                <select value={row.level} onChange={(e) => changeRow(i, { level: e.target.value as any })} className="col-span-4 rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900">
+                  <option value="didIt">I Did It!</option>
+                  <option value="learning">I'm learning!</option>
+                  <option value="mastered">Mastered</option>
+                </select>
+                <div className="col-span-4 flex items-center gap-2">
+                  <Calendar className="size-4 text-gray-500"/>
+                  <input type="date" value={row.date} onChange={(e) => changeRow(i, { date: e.target.value })} className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900" />
+                </div>
+                <div className="col-span-3 flex items-center gap-2">
+                  <Clock className="size-4 text-gray-500"/>
+                  <input type="time" value={row.time} onChange={(e) => changeRow(i, { time: e.target.value })} className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900" />
+                </div>
+                <div className="col-span-1 text-right">
+                  <button onClick={() => removeRow(i)} className="rounded-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">Del</button>
+                </div>
+              </div>
+            ))}
+            {onDelete && m.isCustom && (
+              <div className="flex justify-end">
+                <button
+                  onClick={onDelete}
+                  className="mt-2 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  title="Delete custom milestone"
+                >
+                  <Trash2 className="size-4"/>
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="mt-4 flex items-center justify-end gap-2">
+            <button onClick={onClose} className="rounded-lg border px-4 py-2 border-gray-300 dark:border-gray-700">Cancel</button>
+            <button onClick={save} className="rounded-lg bg-brand-600 text-white px-4 py-2">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

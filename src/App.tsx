@@ -1,7 +1,6 @@
 import './App.css'
 import { MilestonePage } from './features/milestones/MilestonePage'
-import { CompletedPage } from './features/milestones/CompletedPage'
-import { BrowserRouter, Route, Routes, NavLink, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, NavLink, useNavigate, Navigate } from 'react-router-dom'
 import { LoginPage } from './features/auth/LoginPage'
 import { AdminPage } from './features/auth/AdminPage'
 import { RequireAuth } from './features/auth/RequireAuth'
@@ -53,7 +52,6 @@ function App() {
         <nav className="sticky top-0 z-30 border-b bg-white/70 dark:bg-gray-900/70 backdrop-blur">
           <div className="mx-auto max-w-6xl px-4 py-2 flex flex-wrap items-center gap-2 sm:gap-4">
             <NavLink to="/" end className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Milestones</NavLink>
-            <NavLink to="/completed" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Completed</NavLink>
             {/* Archive removed; logs now available from Completed cards */}
             <AdminLink />
             <div className="w-full sm:w-auto ml-0 sm:ml-auto mt-2 sm:mt-0 flex items-center gap-2 justify-between sm:justify-end">
@@ -71,7 +69,7 @@ function App() {
         </nav>
         <Routes>
           <Route path="/" element={<MilestonePage />} />
-          <Route path="/completed" element={<CompletedPage />} />
+          <Route path="/completed" element={<Navigate to="/" replace />} />
           {/* Archive removed */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<RequireAuth><AdminPage /></RequireAuth>} />
