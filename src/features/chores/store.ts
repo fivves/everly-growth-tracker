@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { fetchServerState, saveServerState } from '../../lib/api'
+import { useAuthStore } from '../auth/store'
 
 export type ChoreCategory = 'food' | 'sleep' | 'bio' | 'entertainment' | 'health'
 
@@ -9,13 +10,17 @@ export interface ChoreItem {
   lastCompletedDate: string // YYYY-MM-DD when last completed
   sortOrder: number
   category: ChoreCategory
+  estimatedMinutes?: number
+  captainUsername?: string
+  lastCompletedBy?: string
+  lastCompletedAtIso?: string
 }
 
 interface ChoresState {
   chores: ChoreItem[]
   choresToday: () => Array<ChoreItem & { done: boolean }>
   toggleChore: (id: string) => void
-  addChore: (title: string, category?: ChoreCategory) => void
+  addChore: (input: { title: string; category?: ChoreCategory; estimatedMinutes?: number; captainUsername?: string }) => void
   deleteChore: (id: string) => void
 }
 
@@ -29,9 +34,9 @@ function todayStr(): string {
 
 export const useChoresStore = create<ChoresState>()((set, get) => ({
   chores: [
-    { id: 'wake-baby', title: 'Wake up baby', lastCompletedDate: '', sortOrder: 1, category: 'sleep' },
-    { id: 'feed-baby', title: 'Feed baby', lastCompletedDate: '', sortOrder: 2, category: 'food' },
-    { id: 'sleep-baby', title: 'Put baby to sleep', lastCompletedDate: '', sortOrder: 3, category: 'sleep' },
+    { id: 'wake-baby', title: 'Wake up baby', lastCompletedDate: '', sortOrder: 1, category: 'sleep', estimatedMinutes: 5, captainUsername: 'eddie' },
+    { id: 'feed-baby', title: 'Feed baby', lastCompletedDate: '', sortOrder: 2, category: 'food', estimatedMinutes: 20, captainUsername: 'eddie' },
+    { id: 'sleep-baby', title: 'Put baby to sleep', lastCompletedDate: '', sortOrder: 3, category: 'sleep', estimatedMinutes: 15, captainUsername: 'eddie' },
   ],
   choresToday: () =>
     get()
@@ -41,22 +46,29 @@ export const useChoresStore = create<ChoresState>()((set, get) => ({
   toggleChore: (id) =>
     set((state) => {
       const today = todayStr()
-      const next = state.chores.map((c) =>
-        c.id === id ? { ...c, lastCompletedDate: c.lastCompletedDate === today ? '' : today } : c
-      )
+      const currentUser = useAuthStore.getState().currentUser ?? undefined
+      const nowIso = new Date().toISOString()
+      const next = state.chores.map((c) => {
+        if (c.id !== id) return c
+        const isUndo = c.lastCompletedDate === today
+        if (isUndo) return { ...c, lastCompletedDate: '', lastCompletedBy: undefined, lastCompletedAtIso: undefined }
+        return { ...c, lastCompletedDate: today, lastCompletedBy: currentUser, lastCompletedAtIso: nowIso }
+      })
       void pushChoresToServer(next)
       return { chores: next }
     }),
-  addChore: (title, category = 'bio') =>
+  addChore: (input) =>
     set((state) => {
-      const clean = title.trim()
+      const clean = input.title.trim()
       if (!clean) return state
       const next: ChoreItem = {
         id: `chore-${crypto.randomUUID()}`,
         title: clean,
         lastCompletedDate: '',
         sortOrder: state.chores.length ? Math.max(...state.chores.map((c) => c.sortOrder)) + 1 : 1,
-        category,
+        category: input.category ?? 'bio',
+        estimatedMinutes: input.estimatedMinutes,
+        captainUsername: input.captainUsername,
       }
       const updated = [...state.chores, next]
       void pushChoresToServer(updated)

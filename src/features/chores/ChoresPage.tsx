@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity } from 'lucide-react'
+import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity, Sailboat } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import type { ChoreCategory } from './store'
 import { useChoresStore } from './store'
@@ -10,12 +10,16 @@ export function ChoresPage() {
   const list = choresToday()
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<ChoreCategory>('bio')
+  const [minutes, setMinutes] = useState<number | ''>('')
+  const [captain, setCaptain] = useState('')
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
-    addChore(title, category)
+    addChore({ title, category, estimatedMinutes: minutes === '' ? undefined : Number(minutes), captainUsername: captain || undefined })
     setTitle('')
     setCategory('bio')
+    setMinutes('')
+    setCaptain('')
   }
 
   return (
@@ -38,6 +42,8 @@ export function ChoresPage() {
             <option value="health">Health</option>
           </select>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a chore" className="min-w-0 flex-1 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+          <input value={minutes} onChange={(e) => setMinutes(e.target.value ? Number(e.target.value) : '')} type="number" min={0} placeholder="Min" className="w-24 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+          <input value={captain} onChange={(e) => setCaptain(e.target.value)} placeholder="Captain" className="w-40 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
           <button type="submit" className="rounded-lg bg-brand-600 text-white px-4 py-2 shadow-lg shadow-brand-600/30 hover:bg-brand-700">Add</button>
         </form>
 
@@ -57,7 +63,21 @@ export function ChoresPage() {
                   </span>
                   <div>
                     <h3 className={`font-semibold text-gray-900 dark:text-gray-100 ${c.done ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>{c.title}</h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">{labelForCategory(c.category)}</p>
+                    <div className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 flex items-center gap-2">
+                      <span>{labelForCategory(c.category)}</span>
+                      {typeof c.estimatedMinutes === 'number' && (
+                        <span className="inline-flex items-center gap-1"><span className="opacity-70">•</span>{c.estimatedMinutes} min</span>
+                      )}
+                      {c.captainUsername && (
+                        <span className="inline-flex items-center gap-1" title="Chore captain">
+                          <SailorHatIcon />
+                          <span>{c.captainUsername}</span>
+                        </span>
+                      )}
+                    </div>
+                    {c.lastCompletedBy && c.lastCompletedAtIso && (
+                      <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">Completed by {c.lastCompletedBy} at {new Date(c.lastCompletedAtIso).toLocaleTimeString()}</div>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -118,6 +138,10 @@ function fireConfetti() {
   const defaults = { spread: 60, ticks: 60, gravity: 0.9 }
   confetti({ ...defaults, particleCount: 60, origin: { y: 0.6 } })
   confetti({ ...defaults, particleCount: 120, origin: { y: 0.2 } })
+}
+
+function SailorHatIcon() {
+  return <Sailboat className="size-4" />
 }
 
 
