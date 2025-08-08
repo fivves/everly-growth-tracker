@@ -28,6 +28,7 @@ export function CompletedPage() {
               <MilestoneCard
                 key={m.id}
                 item={m}
+                showAdvance={false}
                 onAdvance={() => {
                   setLevel(m.id, 'mastered')
                   toast('Already mastered!', { type: 'info' })

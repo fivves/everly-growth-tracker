@@ -33,7 +33,7 @@ function CategoryIcon({ category }: { category: MilestoneItem['category'] }) {
   }
 }
 
-export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void }) {
+export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, showAdvance = true }: { item: MilestoneItem; onAdvance: () => void; onUndo: () => void; onEditLogs?: () => void; showAdvance?: boolean }) {
   const canEdit = useAuthStore((s) => s.canEdit())
   const windowText = `${item.ageStartMonths}-${item.ageEndMonths} mo`
   const pill = levelLabel(item.level)
@@ -67,21 +67,24 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs }: { item: M
         <div className="flex items-center justify-between pt-2">
           <span className={clsx('text-xs font-medium px-2 py-1 rounded-full', colors[item.level])}>{pill}</span>
           <div className="flex items-center">
-            <button
-              onClick={onAdvance}
-              disabled={!canEdit}
-              className={clsx(
-                'inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm',
-                canEdit ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 hover:shadow-brand-600/30' : 'bg-gray-300 text-gray-600 cursor-not-allowed'
-              )}
-            >
-              <PartyPopper className="size-4" /> Mark next level
-            </button>
+            {showAdvance && (
+              <button
+                onClick={onAdvance}
+                disabled={!canEdit}
+                className={clsx(
+                  'inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm',
+                  canEdit ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 hover:shadow-brand-600/30' : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                )}
+              >
+                <PartyPopper className="size-4" /> Mark next level
+              </button>
+            )}
             <button
               onClick={onUndo}
               disabled={!canUndo || !canEdit}
               className={clsx(
-                'ml-2 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm',
+                'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm',
+                showAdvance && 'ml-2',
                 canUndo && canEdit ? 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800' : 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
               )}
               title={canUndo ? 'Undo last level change' : 'Nothing to undo yet'}
