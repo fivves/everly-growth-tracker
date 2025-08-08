@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { addMonths, differenceInMonths, parseISO } from 'date-fns'
 import type { BabyProfile, MilestoneItem, MilestoneLevel } from './types'
 import { defaultMilestones } from './seed'
+import { useAuthStore } from '../auth/store'
 
 interface MilestoneState {
   baby: BabyProfile
@@ -37,6 +38,7 @@ export const useMilestoneStore = create<MilestoneState>()(
       milestones: defaultMilestones,
       upsertMilestone: (item) =>
         set((state) => {
+          if (!useAuthStore.getState().canEdit()) return state
           const id = item.id ?? `custom-${crypto.randomUUID()}`
           const existingIndex = state.milestones.findIndex((m) => m.id === id)
           const base: MilestoneItem = {
@@ -59,6 +61,7 @@ export const useMilestoneStore = create<MilestoneState>()(
         }),
       setLevel: (id, level) =>
         set((state) => {
+          if (!useAuthStore.getState().canEdit()) return state
           const next = state.milestones.map((m) => {
             if (m.id !== id) return m
             const now = new Date().toISOString()
@@ -70,6 +73,7 @@ export const useMilestoneStore = create<MilestoneState>()(
         }),
       undoLevel: (id) =>
         set((state) => {
+          if (!useAuthStore.getState().canEdit()) return state
           const next = state.milestones.map((m) => {
             if (m.id !== id) return m
             if (m.levelHistory.length === 0) return m
@@ -81,6 +85,7 @@ export const useMilestoneStore = create<MilestoneState>()(
         }),
       setLevelHistory: (id, history) =>
         set((state) => {
+          if (!useAuthStore.getState().canEdit()) return state
           const sorted = [...history].sort((a, b) => new Date(a.timestampIso).getTime() - new Date(b.timestampIso).getTime())
           const finalLevel: MilestoneLevel = sorted.length > 0 ? sorted[sorted.length - 1].level : 'none'
           const next = state.milestones.map((m) => (m.id === id ? { ...m, level: finalLevel, levelHistory: sorted } : m))

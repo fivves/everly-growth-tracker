@@ -7,10 +7,12 @@ import { useToast } from '../../components/toast/ToastProvider'
 import type { MilestoneItem, MilestoneLevel } from './types'
 import { intervalToDuration, parseISO } from 'date-fns'
 import { MilestoneCard } from './components/MilestoneCard'
+import { useAuthStore } from '../auth/store'
 
 export function MilestonePage() {
   const { baby, upcoming, setLevel, undoLevel } = useMilestoneStore()
   const { toast } = useToast()
+  const canEdit = useAuthStore((s) => s.canEdit())
   const [showCreate, setShowCreate] = useState(false)
   const [now, setNow] = useState<Date>(() => new Date())
   const upcomingList = upcoming(100)
@@ -89,8 +91,9 @@ export function MilestonePage() {
             <p className="text-sm text-gray-700 dark:text-gray-200">{baby.name} has been alive for {liveCounter}.</p>
           </div>
           <button
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-2 rounded-full bg-brand-500 text-white px-4 py-2 shadow-lg shadow-brand-500/30 hover:bg-brand-600 hover:shadow-brand-600/30"
+            onClick={() => canEdit && setShowCreate(true)}
+            disabled={!canEdit}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${canEdit ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 hover:shadow-brand-600/30' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
           >
             <PlusCircle className="size-5" /> Add custom milestone
           </button>
