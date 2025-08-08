@@ -7,9 +7,9 @@
   },
   "milestones": [],
   "chores": [
-    { "id": "wake-baby", "title": "Wake up baby", "lastCompletedDate": "", "sortOrder": 1, "category": "sleep", "estimatedMinutes": 5, "captainUsername": "eddie" },
-    { "id": "feed-baby", "title": "Feed baby", "lastCompletedDate": "", "sortOrder": 2, "category": "food", "estimatedMinutes": 20, "captainUsername": "eddie" },
-    { "id": "sleep-baby", "title": "Put baby to sleep", "lastCompletedDate": "", "sortOrder": 3, "category": "sleep", "estimatedMinutes": 15, "captainUsername": "eddie" }
+    { "id": "wake-baby", "title": "Wake up baby", "description": "Start the day with a smile", "lastCompletedDate": "", "sortOrder": 1, "category": "sleep", "estimatedMinutes": 5, "captainUsername": "eddie" },
+    { "id": "feed-baby", "title": "Feed baby", "description": "Breakfast time!", "lastCompletedDate": "", "sortOrder": 2, "category": "food", "estimatedMinutes": 20, "captainUsername": "eddie" },
+    { "id": "sleep-baby", "title": "Put baby to sleep", "description": "Nap or bedtime routine", "lastCompletedDate": "", "sortOrder": 3, "category": "sleep", "estimatedMinutes": 15, "captainUsername": "eddie" }
   ],
   "users": [
     { "username": "eddie", "password": "eddie" }

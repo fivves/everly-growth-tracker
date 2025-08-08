@@ -14,14 +14,16 @@ export function ChoresPage() {
   const [category, setCategory] = useState<ChoreCategory>('bio')
   const [minutes, setMinutes] = useState<number | ''>('')
   const [captain, setCaptain] = useState('')
+  const [description, setDescription] = useState('')
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
-    addChore({ title, category, estimatedMinutes: minutes === '' ? undefined : Number(minutes), captainUsername: captain || undefined })
+    addChore({ title, description: description || undefined, category, estimatedMinutes: minutes === '' ? undefined : Number(minutes), captainUsername: captain || undefined })
     setTitle('')
     setCategory('bio')
     setMinutes('')
     setCaptain('')
+    setDescription('')
   }
 
   return (
@@ -45,6 +47,7 @@ export function ChoresPage() {
             <option value="health">Health</option>
           </select>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a chore" className="min-w-0 flex-1 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description" className="min-w-0 flex-1 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
           <input value={minutes} onChange={(e) => setMinutes(e.target.value ? Number(e.target.value) : '')} type="number" min={0} placeholder="Min" className="w-24 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
           <input value={captain} onChange={(e) => setCaptain(e.target.value)} placeholder="Captain" className="w-40 rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
           <button type="submit" className="rounded-lg bg-brand-600 text-white px-4 py-2 shadow-lg shadow-brand-600/30 hover:bg-brand-700">Add</button>
@@ -79,6 +82,9 @@ export function ChoresPage() {
                         </span>
                       )}
                     </div>
+                    {c.description && (
+                      <p className="text-sm text-gray-700 dark:text-gray-200 mt-1">{c.description}</p>
+                    )}
                     {c.lastCompletedBy && c.lastCompletedAtIso && (
                       <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">Completed by {c.lastCompletedBy} at {new Date(c.lastCompletedAtIso).toLocaleTimeString()}</div>
                     )}

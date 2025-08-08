@@ -7,6 +7,7 @@ export type ChoreCategory = 'food' | 'sleep' | 'bio' | 'entertainment' | 'health
 export interface ChoreItem {
   id: string
   title: string
+  description?: string
   lastCompletedDate: string // YYYY-MM-DD when last completed
   sortOrder: number
   category: ChoreCategory
@@ -20,7 +21,7 @@ interface ChoresState {
   chores: ChoreItem[]
   choresToday: () => Array<ChoreItem & { done: boolean }>
   toggleChore: (id: string) => void
-  addChore: (input: { title: string; category?: ChoreCategory; estimatedMinutes?: number; captainUsername?: string }) => void
+  addChore: (input: { title: string; description?: string; category?: ChoreCategory; estimatedMinutes?: number; captainUsername?: string }) => void
   deleteChore: (id: string) => void
 }
 
@@ -66,6 +67,7 @@ export const useChoresStore = create<ChoresState>()((set, get) => ({
       const next: ChoreItem = {
         id: `chore-${crypto.randomUUID()}`,
         title: clean,
+        description: input.description,
         lastCompletedDate: '',
         sortOrder: state.chores.length ? Math.max(...state.chores.map((c) => c.sortOrder)) + 1 : 1,
         category: input.category ?? 'bio',
