@@ -166,30 +166,30 @@ function CreateMilestoneModal({ onClose }: { onClose: () => void }) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
       >
-        <div className="w-full max-w-md rounded-2xl bg-white p-4 shadow-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Add custom milestone</h3>
+        <div className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 shadow-lg">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Add custom milestone</h3>
           <div className="space-y-3">
             <label className="block">
-              <span className="text-sm text-gray-700">Title</span>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Title</span>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
             </label>
             <label className="block">
-              <span className="text-sm text-gray-700">Description</span>
-              <input value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Description</span>
+              <input value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="text-sm text-gray-700">Start (mo)</span>
-                <input type="number" value={start} onChange={(e) => setStart(parseInt(e.target.value || '0'))} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500" />
+                <span className="text-sm text-gray-700 dark:text-gray-300">Start (mo)</span>
+                <input type="number" value={start} onChange={(e) => setStart(parseInt(e.target.value || '0'))} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
               </label>
               <label className="block">
-                <span className="text-sm text-gray-700">End (mo)</span>
-                <input type="number" value={end} onChange={(e) => setEnd(parseInt(e.target.value || '0'))} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500" />
+                <span className="text-sm text-gray-700 dark:text-gray-300">End (mo)</span>
+                <input type="number" value={end} onChange={(e) => setEnd(parseInt(e.target.value || '0'))} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
               </label>
             </div>
             <label className="block">
-              <span className="text-sm text-gray-700">Category</span>
-              <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500">
+              <span className="text-sm text-gray-700 dark:text-gray-300">Category</span>
+              <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900">
                 <option value="motor">Motor</option>
                 <option value="language">Language</option>
                 <option value="social">Social</option>
@@ -199,7 +199,7 @@ function CreateMilestoneModal({ onClose }: { onClose: () => void }) {
             </label>
           </div>
           <div className="flex items-center justify-end gap-2 mt-4">
-            <button className="px-4 py-2 rounded-lg border" onClick={onClose}>Cancel</button>
+            <button className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700" onClick={onClose}>Cancel</button>
             <button className="px-4 py-2 rounded-lg bg-brand-500 text-white" onClick={submit}>Add</button>
           </div>
         </div>
