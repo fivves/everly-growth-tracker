@@ -8,6 +8,7 @@ import { fetchServerState, saveServerState } from '../../lib/api'
 interface MilestoneState {
   baby: BabyProfile
   milestones: MilestoneItem[]
+  setBabyWeight: (weightLbs: number) => void
   upsertMilestone: (item: Omit<MilestoneItem, 'id' | 'createdAtIso' | 'level' | 'levelHistory'> & { id?: string }) => void
   setLevel: (id: string, level: Exclude<MilestoneLevel, 'none'>) => void
   undoLevel: (id: string) => void
@@ -37,6 +38,13 @@ function scoreForUpcoming(m: MilestoneItem, ageMonths: number): number {
 export const useMilestoneStore = create<MilestoneState>()((set, get) => ({
   baby: initialBaby,
   milestones: defaultMilestones,
+  setBabyWeight: (weightLbs) =>
+    set((state) => {
+      if (!useAuthStore.getState().canEdit()) return state
+      const nextBaby = { ...state.baby, weightLbs }
+      void pushStateToServer(state.milestones, nextBaby)
+      return { baby: nextBaby }
+    }),
   upsertMilestone: (item) =>
     set((state) => {
       if (!useAuthStore.getState().canEdit()) return state

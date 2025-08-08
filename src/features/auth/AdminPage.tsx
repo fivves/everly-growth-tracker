@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { useAuthStore } from './store'
+import { useMilestoneStore } from '../milestones/store'
 
 export function AdminPage() {
   const { users, addUser, removeUser, changePassword, currentUser } = useAuthStore()
+  const { baby, setBabyWeight } = useMilestoneStore()
   const [newUser, setNewUser] = useState('')
   const [newPass, setNewPass] = useState('')
   const [pwUser, setPwUser] = useState('')
   const [pwPass, setPwPass] = useState('')
+  const [weight, setWeight] = useState<string>(typeof baby.weightLbs === 'number' ? String(baby.weightLbs) : '')
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
@@ -67,6 +70,33 @@ export function AdminPage() {
           <input placeholder="username" value={pwUser} onChange={(e) => setPwUser(e.target.value)} className="rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500" />
           <input placeholder="new password" type="password" value={pwPass} onChange={(e) => setPwPass(e.target.value)} className="rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500" />
           <button className="rounded-lg bg-brand-600 text-white px-4">Change</button>
+        </form>
+      </section>
+
+      <section className="rounded-xl border p-4">
+        <h2 className="font-medium mb-3">Baby profile</h2>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            const num = Number(weight)
+            if (Number.isFinite(num) && num > 0) setBabyWeight(Number(num.toFixed(1)))
+          }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end"
+        >
+          <label className="block md:col-span-1">
+            <span className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Weight (lbs)</span>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              className="mt-1 w-full rounded-lg border-gray-300 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 px-3 py-2"
+            />
+          </label>
+          <div className="md:col-span-2 text-right">
+            <button className="inline-flex items-center gap-2 rounded-full bg-brand-600 text-white px-4 py-2 shadow-lg shadow-brand-600/30 hover:bg-brand-700">Save weight</button>
+          </div>
         </form>
       </section>
     </div>
