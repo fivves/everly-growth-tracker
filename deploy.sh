@@ -18,7 +18,7 @@ sleep 10
 # Check if the application is running
 if docker-compose ps | grep -q "Up"; then
     echo "✅ Everly Growth Tracker is now running!"
-    echo "🌐 Access your application at: http://localhost:3000"
+    echo "🌐 Access your application at: http://localhost:9378"
     echo "📊 Container status:"
     docker-compose ps
 else

@@ -65,7 +65,7 @@ This application includes Docker support for easy deployment to your homelab ser
    deploy.bat
    ```
 
-3. **Access the application** at `http://your-server-ip:3000`
+3. **Access the application** at `http://your-server-ip:9378`
 
 #### Manual Deployment
 
@@ -82,7 +82,7 @@ docker-compose down
 
 #### Configuration
 
-- **Port**: The application runs on port 3000 by default
+- **Port**: The application runs on port 9378 by default
 - **Health Check**: Available at `/health` endpoint
 - **Static Assets**: Optimized with caching and compression
 - **Security**: Includes security headers and CSP configuration

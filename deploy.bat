@@ -17,7 +17,7 @@ REM Check if the application is running
 docker-compose ps | findstr "Up" >nul
 if %errorlevel% equ 0 (
     echo ✅ Everly Growth Tracker is now running!
-    echo 🌐 Access your application at: http://localhost:3000
+    echo 🌐 Access your application at: http://localhost:9378
     echo 📊 Container status:
     docker-compose ps
 ) else (
