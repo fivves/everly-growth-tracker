@@ -54,8 +54,8 @@ function App() {
         <nav className="sticky top-0 z-30 border-b bg-white/70 dark:bg-gray-900/70 backdrop-blur">
           <div className="mx-auto max-w-6xl px-4 py-2 flex flex-wrap items-center gap-2 sm:gap-4">
             <NavLink to="/" end className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Home</NavLink>
-            <NavLink to="/milestones" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Milestones</NavLink>
             <NavLink to="/chores" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Chores</NavLink>
+            <NavLink to="/milestones" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Milestones</NavLink>
             {/* Archive removed; logs now available from Completed cards */}
             <AdminLink />
             <div className="w-full sm:w-auto ml-0 sm:ml-auto mt-2 sm:mt-0 flex items-center gap-2 justify-between sm:justify-end">

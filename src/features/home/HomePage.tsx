@@ -2,7 +2,10 @@ import { useMemo, useState, useEffect } from 'react'
 import { intervalToDuration, parseISO } from 'date-fns'
 import { useMilestoneStore } from '../milestones/store'
 import { useChoresStore } from '../chores/store'
+import { useAuthStore } from '../auth/store'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { Utensils, BedDouble, HeartPulse, Gamepad2, Activity, Sailboat } from 'lucide-react'
+import confetti from 'canvas-confetti'
 
 export function HomePage() {
   const { baby, upcoming, completed } = useMilestoneStore()
@@ -59,6 +62,14 @@ export function HomePage() {
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-10">
         <section>
           <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Today's chores</h2>
+            <button onClick={() => navigate('/chores')} className="inline-flex items-center rounded-full px-3 py-1.5 text-sm bg-brand-600 text-white hover:bg-brand-700">Open chores</button>
+          </div>
+          <ChoresCompactWidget />
+        </section>
+
+        <section>
+          <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Milestones at a glance</h2>
             <NavLink to="/milestones" className={({isActive}) => `inline-flex items-center rounded-full px-3 py-1.5 text-sm ${isActive ? 'bg-brand-600 text-white' : 'border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>View more</NavLink>
           </div>
@@ -79,14 +90,6 @@ export function HomePage() {
             <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">Recently completed: {completedList.map((m) => m.title).join(', ')}</p>
           )}
         </section>
-
-        <section>
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Today's chores</h2>
-            <button onClick={() => navigate('/chores')} className="inline-flex items-center rounded-full px-3 py-1.5 text-sm bg-brand-600 text-white hover:bg-brand-700">Open chores</button>
-          </div>
-          <ChoresCompactWidget />
-        </section>
       </main>
     </div>
   )
@@ -102,18 +105,98 @@ function InfoPill({ label, value }: { label: string; value: string }) {
 }
 
 function ChoresCompactWidget() {
-  const { choresToday } = useChoresStore()
+  const { choresToday, toggleChore } = useChoresStore()
+  const currentUser = useAuthStore((s) => s.currentUser)
   const items = choresToday()
   return (
-    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
       {items.map((c) => (
-        <div key={c.id} className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-2 flex items-center justify-between">
-          <div className="text-sm text-gray-800 dark:text-gray-100">{c.title}</div>
-          <span className={`text-xs rounded-full px-2 py-0.5 ${c.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}`}>{c.done ? 'Done' : 'Pending'}</span>
+        <div key={c.id} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 flex items-start justify-between">
+          <div className="flex items-start gap-3 min-w-0">
+            <span className="inline-flex items-center justify-center size-8 rounded-xl bg-brand-50 dark:bg-gray-800 text-brand-700 dark:text-brand-300 ring-1 ring-brand-200 dark:ring-gray-700 shrink-0">
+              <CategoryIcon category={c.category} />
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{c.title}</h3>
+                <span className={`text-[11px] rounded-full px-2 py-0.5 ${c.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}`}>{c.done ? 'Done' : 'Pending'}</span>
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 flex items-center gap-2 flex-wrap">
+                <span>{labelForCategory(c.category)}</span>
+                {typeof c.estimatedMinutes === 'number' && (
+                  <span className="inline-flex items-center gap-1"><span className="opacity-70">•</span>{c.estimatedMinutes} min</span>
+                )}
+                {c.captainUsername && (
+                  <span className="inline-flex items-center gap-1" title="Chore captain">
+                    <SailorHatIcon />
+                    <span>{c.captainUsername}</span>
+                  </span>
+                )}
+              </div>
+              {c.description && (
+                <p className="text-sm text-gray-700 dark:text-gray-200 mt-1 line-clamp-2">{c.description}</p>
+              )}
+              {c.lastCompletedBy && c.lastCompletedAtIso && (
+                <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">Completed by {c.lastCompletedBy} at {new Date(c.lastCompletedAtIso).toLocaleTimeString()}</div>
+              )}
+            </div>
+          </div>
+          <div className="shrink-0 ml-3">
+            <button
+              onClick={() => {
+                if (!currentUser) return
+                const wasDone = c.done
+                toggleChore(c.id)
+                if (!wasDone) {
+                  const defaults = { spread: 60, ticks: 60, gravity: 0.9 }
+                  confetti({ ...defaults, particleCount: 60, origin: { y: 0.6 } })
+                }
+              }}
+              disabled={!currentUser}
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm ${!currentUser ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : c.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-brand-600 text-white shadow-lg shadow-brand-600/30 hover:bg-brand-700 hover:shadow-brand-700/30'}`}
+            >
+              {c.done ? 'Done' : 'Mark done'}
+            </button>
+          </div>
         </div>
       ))}
     </div>
   )
+}
+
+function CategoryIcon({ category }: { category: import('../chores/store').ChoreCategory }) {
+  const className = 'size-4'
+  switch (category) {
+    case 'food':
+      return <Utensils className={className} />
+    case 'sleep':
+      return <BedDouble className={className} />
+    case 'health':
+      return <HeartPulse className={className} />
+    case 'entertainment':
+      return <Gamepad2 className={className} />
+    default:
+      return <Activity className={className} />
+  }
+}
+
+function labelForCategory(category: import('../chores/store').ChoreCategory): string {
+  switch (category) {
+    case 'food':
+      return 'Food'
+    case 'sleep':
+      return 'Sleep'
+    case 'health':
+      return 'Health'
+    case 'entertainment':
+      return 'Entertainment'
+    default:
+      return 'Bio'
+  }
+}
+
+function SailorHatIcon() {
+  return <Sailboat className="size-4" />
 }
 
 
