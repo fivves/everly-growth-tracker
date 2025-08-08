@@ -31,7 +31,6 @@ export function LoginPage() {
         </label>
         {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
         <button className="w-full rounded-lg bg-brand-600 text-white py-2">Sign in</button>
-        <p className="text-xs text-gray-500 mt-3">Default admin: eddie / eddie</p>
       </form>
     </div>
   )
