@@ -48,6 +48,7 @@ export const useMilestoneStore = create<MilestoneState>()((set, get) => ({
         ageEndMonths: item.ageEndMonths,
         category: item.category,
         isCustom: true,
+        createdBy: useAuthStore.getState().currentUser ?? 'eddie',
         level: existingIndex >= 0 ? state.milestones[existingIndex].level : 'none',
         levelHistory: existingIndex >= 0 ? state.milestones[existingIndex].levelHistory : [],
         createdAtIso:

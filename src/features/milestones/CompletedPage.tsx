@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { useMilestoneStore } from './store'
 import { useToast } from '../../components/toast/ToastProvider'
 import { MilestoneCard } from './components/MilestoneCard'
-import { Calendar, Clock, X } from 'lucide-react'
+import { Calendar, Clock, X, Trash2 } from 'lucide-react'
 
 export function CompletedPage() {
-  const { completed, setLevel, undoLevel, milestones, setLevelHistory } = useMilestoneStore()
+  const { completed, setLevel, undoLevel, milestones, setLevelHistory, deleteMilestone } = useMilestoneStore()
   const { toast } = useToast()
   const list = completed()
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -81,6 +81,7 @@ export function CompletedPage() {
         <EditLogsModal
           milestoneId={editingId}
           milestones={milestones}
+          onDelete={() => { const m = milestones.find(x => x.id === editingId); if (m && m.isCustom) { deleteMilestone(editingId); setEditingId(null) }}}
           onClose={() => setEditingId(null)}
           onSave={(history) => { setLevelHistory(editingId, history); setEditingId(null) }}
         />
@@ -89,7 +90,7 @@ export function CompletedPage() {
   )
 }
 
-function EditLogsModal({ milestoneId, milestones, onClose, onSave }: { milestoneId: string; milestones: ReturnType<typeof useMilestoneStore>['milestones']; onClose: () => void; onSave: (history: { level: 'didIt'|'learning'|'mastered'; timestampIso: string }[]) => void }) {
+function EditLogsModal({ milestoneId, milestones, onClose, onSave, onDelete }: { milestoneId: string; milestones: ReturnType<typeof useMilestoneStore>['milestones']; onClose: () => void; onSave: (history: { level: 'didIt'|'learning'|'mastered'; timestampIso: string }[]) => void; onDelete?: () => void }) {
   const m = milestones.find((x) => x.id === milestoneId)!
   const [rows, setRows] = useState<{ level: 'didIt'|'learning'|'mastered'; date: string; time: string }[]>(() =>
     (m.levelHistory.length ? m.levelHistory : [{ level: 'didIt', timestampIso: new Date().toISOString() }]).map((h) => {
@@ -143,9 +144,17 @@ function EditLogsModal({ milestoneId, milestones, onClose, onSave }: { milestone
                 </div>
               </div>
             ))}
-            <div>
-              <button onClick={addRow} className="mt-2 rounded-full border px-3 py-1.5 text-sm border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">Add entry</button>
-            </div>
+            {onDelete && m.isCustom && (
+              <div className="flex justify-end">
+                <button
+                  onClick={onDelete}
+                  className="mt-2 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  title="Delete custom milestone"
+                >
+                  <Trash2 className="size-4"/>
+                </button>
+              </div>
+            )}
           </div>
           <div className="mt-4 flex items-center justify-end gap-2">
             <button onClick={onClose} className="rounded-lg border px-4 py-2 border-gray-300 dark:border-gray-700">Cancel</button>

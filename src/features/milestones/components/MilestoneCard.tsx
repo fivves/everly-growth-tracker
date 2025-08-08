@@ -62,7 +62,14 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, s
               </span>
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 leading-tight">{item.title}</h3>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{item.description}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-2">
+              <span className="truncate">{item.description}</span>
+              {item.isCustom && item.createdBy && (
+                <span className="shrink-0 text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">
+                  by {item.createdBy}
+                </span>
+              )}
+            </p>
           </div>
           <span className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{windowText}</span>
         </div>

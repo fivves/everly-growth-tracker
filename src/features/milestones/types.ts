@@ -16,6 +16,7 @@ export interface MilestoneItem {
   levelHistory: MilestoneLevelLogEntry[]
   createdAtIso: string
   isCustom?: boolean
+  createdBy?: string
 }
 
 export interface BabyProfile {
