@@ -44,7 +44,7 @@ npm run preview
 
 ## Deployment
 
-### Docker Deployment
+### Docker Deployment (frontend + API)
 
 This application includes Docker support for easy deployment to your homelab server.
 
@@ -66,11 +66,13 @@ This application includes Docker support for easy deployment to your homelab ser
    ```
 
 3. **Access the application** at `http://your-server-ip:9378`
+   - The frontend is served by Nginx
+   - The API is proxied at `/api` and persists data on a Docker volume (`everly-data`)
 
 #### Manual Deployment
 
 ```bash
-# Build and start the application
+# Build and start the application (frontend + API)
 docker-compose up -d --build
 
 # View logs
@@ -95,6 +97,7 @@ No environment variables are required for basic deployment. The application uses
 
 ```
 src/
+server/              # Minimal Node/Express API storing state on disk
 ├── components/          # Reusable UI components
 ├── features/
 │   └── milestones/     # Milestone tracking feature

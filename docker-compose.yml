@@ -1,12 +1,34 @@
 version: '3.8'
 
 services:
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: everly-growth-tracker-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - everly-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\" "]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - everly-network
+
   everly-growth-tracker:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: everly-growth-tracker
     restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
     ports:
       - "9378:80"
     environment:
@@ -23,3 +45,6 @@ services:
 networks:
   everly-network:
     driver: bridge
+
+volumes:
+  everly-data:
