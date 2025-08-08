@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { clsx } from 'clsx'
-import { PartyPopper, Activity, MessageCircle, Users, Brain, Star, PencilLine, Trash2 } from 'lucide-react'
+import { PartyPopper, Activity, MessageCircle, Users, Brain, Star, PencilLine, Trash2, Crown } from 'lucide-react'
 import type { MilestoneItem, MilestoneLevel } from '../types'
 import { useAuthStore } from '../../auth/store'
 import type { ReactNode } from 'react'
@@ -42,7 +42,8 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, s
     none: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
     didIt: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
     learning: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-    mastered: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+    // Gold pill for mastered
+    mastered: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
   }
   const canUndo = item.levelHistory.length > 0
 
@@ -67,7 +68,16 @@ export function MilestoneCard({ item, onAdvance, onUndo, onEditLogs, onDelete, s
         </div>
           <div className="flex items-center justify-between pt-2">
           <div className="flex items-center min-w-0">
-            <span className={clsx('text-xs font-medium px-2 py-1 rounded-full', colors[item.level])}>{pill}</span>
+            <span className={clsx('group inline-flex items-center text-xs font-medium px-2 py-1 rounded-full', colors[item.level])} title={item.level === 'mastered' ? 'Mastered' : undefined}>
+              {item.level === 'mastered' ? (
+                <>
+                  <Crown className="size-4 block group-hover:hidden" />
+                  <span className="hidden group-hover:inline ml-1">Mastered</span>
+                </>
+              ) : (
+                pill
+              )}
+            </span>
             {statusAside && (
               <div className="ml-2 flex items-center gap-2 min-w-0">{statusAside}</div>
             )}
