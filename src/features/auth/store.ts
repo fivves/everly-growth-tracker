@@ -37,7 +37,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     // also load server users so Admin page reflects server truth
     try {
       const state = await fetchServerState()
-      if (Array.isArray(state.users)) set({ users: state.users })
+      if (Array.isArray(state.users) && state.users.length > 0) set({ users: state.users })
+      else set({ users: [{ username: 'eddie', password: 'eddie' }] })
     } catch {}
     set({ currentUser: username })
     return true

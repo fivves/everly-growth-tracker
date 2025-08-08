@@ -9,8 +9,8 @@ RUN npm install --omit=dev
 COPY index.js ./
 COPY default-state.json ./
 
-ENV PORT=3001
-EXPOSE 3001
+ENV PORT=9379
+EXPOSE 9379
 
 CMD ["node", "index.js"]
 

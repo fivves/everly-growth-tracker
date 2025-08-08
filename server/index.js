@@ -10,25 +10,43 @@ app.use(express.json({ limit: '1mb' }))
 const dataDir = '/data'
 const stateFile = path.join(dataDir, 'state.json')
 const defaultStatePath = path.join(process.cwd(), 'default-state.json')
+const DEFAULT_ADMIN = { username: 'eddie', password: 'eddie' }
 
 function ensureDataDir() {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true })
+}
+
+function normalizeState(state) {
+  const next = { baby: { name: 'Everly', birthDateIso: '2024-10-27T17:23:00' }, milestones: [], users: [DEFAULT_ADMIN] }
+  if (state && typeof state === 'object') {
+    next.baby = state.baby ?? next.baby
+    next.milestones = Array.isArray(state.milestones) ? state.milestones : []
+    const incomingUsers = Array.isArray(state.users) ? state.users : []
+    const hasDefault = incomingUsers.some(u => u.username === DEFAULT_ADMIN.username)
+    next.users = hasDefault ? incomingUsers : [DEFAULT_ADMIN, ...incomingUsers]
+  }
+  return next
 }
 
 function readState() {
   ensureDataDir()
   if (!fs.existsSync(stateFile)) {
     const fallback = JSON.parse(fs.readFileSync(defaultStatePath, 'utf8'))
-    fs.writeFileSync(stateFile, JSON.stringify(fallback, null, 2))
-    return fallback
+    const normalized = normalizeState(fallback)
+    fs.writeFileSync(stateFile, JSON.stringify(normalized, null, 2))
+    return normalized
   }
   try {
     const raw = fs.readFileSync(stateFile, 'utf8')
-    return JSON.parse(raw)
+    const normalized = normalizeState(JSON.parse(raw))
+    // persist normalization (ensures default admin exists)
+    fs.writeFileSync(stateFile, JSON.stringify(normalized, null, 2))
+    return normalized
   } catch {
     const fallback = JSON.parse(fs.readFileSync(defaultStatePath, 'utf8'))
-    fs.writeFileSync(stateFile, JSON.stringify(fallback, null, 2))
-    return fallback
+    const normalized = normalizeState(fallback)
+    fs.writeFileSync(stateFile, JSON.stringify(normalized, null, 2))
+    return normalized
   }
 }
 
@@ -69,7 +87,7 @@ app.put('/api/state', (req, res) => {
   res.json({ ok: true })
 })
 
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 9379
 app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`API listening on :${port}`)
