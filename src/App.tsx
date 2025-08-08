@@ -28,7 +28,7 @@ function App() {
             <NavLink to="/" end className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Milestones</NavLink>
             <NavLink to="/completed" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Completed</NavLink>
             <NavLink to="/archive" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Archive</NavLink>
-            <NavLink to="/admin" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Admin</NavLink>
+            <AdminLink />
             <div className="ml-auto">
               <AuthControls />
               <button
@@ -60,11 +60,29 @@ function AuthControls() {
   const currentUser = useAuthStore((s) => s.currentUser)
   const logout = useAuthStore((s) => s.logout)
   if (currentUser) {
-    return (
-      <button onClick={logout} className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 mr-2">Sign out ({currentUser})</button>
-    )
+    return <SignOutButton username={currentUser} onSignOut={logout} />
   }
   return (
     <NavLink to="/login" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Sign in</NavLink>
+  )
+}
+
+function AdminLink() {
+  const currentUser = useAuthStore((s) => s.currentUser)
+  if (!currentUser) return null
+  return (
+    <NavLink to="/admin" className={({isActive}) => `px-3 py-1.5 rounded-full text-sm ${isActive ? 'bg-brand-600 text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Admin</NavLink>
+  )
+}
+
+function SignOutButton({ username, onSignOut }: { username: string; onSignOut: () => void }) {
+  const navigate = useNavigate()
+  return (
+    <button
+      onClick={() => { onSignOut(); navigate('/', { replace: true }) }}
+      className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 mr-2"
+    >
+      Sign out ({username})
+    </button>
   )
 }

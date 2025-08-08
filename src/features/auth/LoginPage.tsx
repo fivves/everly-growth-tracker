@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from './store'
 
 export function LoginPage() {
@@ -6,12 +7,14 @@ export function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     const ok = await login(username.trim(), password)
     if (!ok) setError('Invalid credentials')
+    else navigate('/', { replace: true })
   }
 
   return (
