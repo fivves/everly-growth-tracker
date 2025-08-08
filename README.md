@@ -1,6 +1,6 @@
-# Everly Growth Tracker
+# everApp
 
-A React-based milestone tracking application for tracking personal growth and development goals.
+A React-based app for Everly. Milestones are one feature; also includes a Home page and a daily Chores tracker that persists via the bundled API.
 
 ## Features
 
@@ -97,14 +97,16 @@ No environment variables are required for basic deployment. The application uses
 
 ```
 src/
-server/              # Minimal Node/Express API storing state on disk
+server/                  # Minimal Node/Express API storing state on disk
 ├── components/          # Reusable UI components
 ├── features/
-│   └── milestones/     # Milestone tracking feature
-│       ├── components/ # Milestone-specific components
-│       ├── store.ts    # Zustand state management
-│       └── types.ts    # TypeScript type definitions
-└── App.tsx            # Main application component
+│   ├── home/            # New Home page
+│   ├── chores/          # Daily chores feature
+│   └── milestones/      # Milestones feature
+│       ├── components/  # Milestone-specific components
+│       ├── store.ts     # Zustand state management
+│       └── types.ts     # TypeScript type definitions
+└── App.tsx              # Main application component
 ```
 
 Currently, two official plugins are available:

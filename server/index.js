@@ -17,10 +17,16 @@ function ensureDataDir() {
 }
 
 function normalizeState(state) {
-  const next = { baby: { name: 'Everly', birthDateIso: '2024-10-27T17:23:00' }, milestones: [], users: [DEFAULT_ADMIN] }
+  const next = {
+    baby: { name: 'Everly', birthDateIso: '2024-10-27T17:23:00', photoUrl: 'https://placehold.co/600x600/FFE4E6/8B5CF6?text=Everly', weightLbs: 7.5 },
+    milestones: [],
+    chores: [],
+    users: [DEFAULT_ADMIN],
+  }
   if (state && typeof state === 'object') {
-    next.baby = state.baby ?? next.baby
+    next.baby = state.baby ? { ...next.baby, ...state.baby } : next.baby
     next.milestones = Array.isArray(state.milestones) ? state.milestones : []
+    next.chores = Array.isArray(state.chores) ? state.chores : []
     const incomingUsers = Array.isArray(state.users) ? state.users : []
     const hasDefault = incomingUsers.some(u => u.username === DEFAULT_ADMIN.username)
     next.users = hasDefault ? incomingUsers : [DEFAULT_ADMIN, ...incomingUsers]

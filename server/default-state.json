@@ -1,9 +1,16 @@
 {
   "baby": {
     "name": "Everly",
-    "birthDateIso": "2024-10-27T17:23:00"
+    "birthDateIso": "2024-10-27T17:23:00",
+    "photoUrl": "https://placehold.co/600x600/FFE4E6/8B5CF6?text=Everly",
+    "weightLbs": 7.5
   },
   "milestones": [],
+  "chores": [
+    { "id": "wake-baby", "title": "Wake up baby", "lastCompletedDate": "", "sortOrder": 1 },
+    { "id": "feed-baby", "title": "Feed baby", "lastCompletedDate": "", "sortOrder": 2 },
+    { "id": "sleep-baby", "title": "Put baby to sleep", "lastCompletedDate": "", "sortOrder": 3 }
+  ],
   "users": [
     { "username": "eddie", "password": "eddie" }
   ]

@@ -1,6 +1,7 @@
 export type ServerState = {
-  baby: { name: string; birthDateIso: string }
+  baby: { name: string; birthDateIso: string; photoUrl?: string; weightLbs?: number }
   milestones: any[]
+  chores?: any[]
   users: { username: string; password: string }[]
 }
 

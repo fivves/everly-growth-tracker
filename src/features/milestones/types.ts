@@ -22,6 +22,8 @@ export interface MilestoneItem {
 export interface BabyProfile {
   name: string
   birthDateIso: string
+  photoUrl?: string
+  weightLbs?: number
 }
 
 

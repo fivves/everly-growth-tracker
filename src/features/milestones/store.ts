@@ -22,6 +22,8 @@ const initialBaby: BabyProfile = {
   name: 'Everly',
   // Born October 27, 2024 at 5:23 PM (local time)
   birthDateIso: '2024-10-27T17:23:00',
+  photoUrl: 'https://placehold.co/600x600/FFE4E6/8B5CF6?text=Everly',
+  weightLbs: 7.5,
 }
 
 function scoreForUpcoming(m: MilestoneItem, ageMonths: number): number {
