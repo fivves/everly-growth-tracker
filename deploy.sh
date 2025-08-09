@@ -13,7 +13,7 @@ docker-compose up -d --build
 
 # Wait a moment for the container to start
 echo "⏳ Waiting for application to start..."
-sleep 10
+sleep 2
 
 # Check if the application is running
 if docker-compose ps | grep -q "Up"; then
